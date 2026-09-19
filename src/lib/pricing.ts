@@ -48,7 +48,7 @@ export type PricingResult = {
   quotes: SupplierQuoteResult[];
   selectedMerchantIds: string[];
   selectedTotalMinor: number | null;
-  selectionStrategy: "greedy" | null;
+  selectionStrategy: "exact" | "greedy-fallback" | null;
   selectionIncludesCeiling: boolean;
   caps: SpendingCaps;
   missingItems: Array<{ index: number; query: string }>;

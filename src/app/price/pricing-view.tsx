@@ -21,7 +21,11 @@ export function PricingView({
         }`}
       >
         <h2 className="text-xl font-bold">
-          Greedy delivered-cost combination
+          {result.selectionStrategy === null
+            ? "No complete combination"
+            : result.selectionStrategy === "greedy-fallback"
+            ? "Greedy fallback combination"
+            : "Cheapest exact-cover combination"}
         </h2>
         {result.selectedTotalMinor === null ? (
           <p className="mt-2">
@@ -38,8 +42,16 @@ export function PricingView({
             </p>
             <p className="text-sm">
               Across {result.selectedMerchantIds.length} supplier cart(s), under
-              a budget of {formatMoney(parsed.budget_minor, parsed.currency)}.
+              a budget of {formatMoney(parsed.budget_minor, parsed.currency)}.{" "}
+              Selection uses delivered quote amounts, not browse-time unit
+              prices.
             </p>
+            {result.selectionStrategy === "greedy-fallback" ? (
+              <p className="mt-2 text-sm font-semibold text-amber-900">
+                Exact cover was unavailable; the page stayed usable by falling
+                back to greedy selection.
+              </p>
+            ) : null}
             {result.selectionIncludesCeiling ? (
               <p className="mt-2 rounded bg-amber-100 p-2 text-sm text-amber-900">
                 This comparison includes at least one ceiling, not a final

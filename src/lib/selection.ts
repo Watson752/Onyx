@@ -9,15 +9,15 @@ export type SelectableSupplierQuote = {
 export type CombinationSelection = {
   merchantIds: string[];
   totalMinor: number;
-  strategy: "greedy";
+  strategy: "exact" | "greedy-fallback";
   includesCeiling: boolean;
 };
 
-export function selectCombination(
+function greedySelection(
   quotes: SelectableSupplierQuote[],
   itemCount: number,
   budgetMinor: number,
-): CombinationSelection | undefined {
+): Omit<CombinationSelection, "strategy"> | undefined {
   const usable = quotes.filter(
     (quote) => quote.ready && quote.totalMinor !== null,
   );
@@ -52,7 +52,83 @@ export function selectCombination(
   return {
     merchantIds: selected.map((quote) => quote.merchantId),
     totalMinor,
-    strategy: "greedy",
     includesCeiling: selected.some((quote) => !quote.amountIsFinal),
   };
+}
+
+function exactSelection(
+  quotes: SelectableSupplierQuote[],
+  itemCount: number,
+  budgetMinor: number,
+): Omit<CombinationSelection, "strategy"> | undefined {
+  const usable = quotes.filter(
+    (quote) => quote.ready && quote.totalMinor !== null,
+  );
+  if (usable.length > 24) {
+    throw new Error("Exact-cover candidate limit exceeded.");
+  }
+
+  let best:
+    | {
+        selected: SelectableSupplierQuote[];
+        totalMinor: number;
+      }
+    | undefined;
+
+  function search(
+    covered: Set<number>,
+    selected: SelectableSupplierQuote[],
+    totalMinor: number,
+  ) {
+    if (totalMinor > budgetMinor || (best && totalMinor >= best.totalMinor)) {
+      return;
+    }
+    if (covered.size === itemCount) {
+      best = { selected, totalMinor };
+      return;
+    }
+
+    const nextItem = Array.from({ length: itemCount }, (_, index) => index).find(
+      (index) => !covered.has(index),
+    );
+    if (nextItem === undefined) return;
+
+    for (const quote of usable) {
+      const indexes = quote.items.map((item) => item.requestItemIndex);
+      if (!indexes.includes(nextItem)) continue;
+      if (indexes.some((index) => covered.has(index))) continue;
+
+      const nextCovered = new Set(covered);
+      indexes.forEach((index) => nextCovered.add(index));
+      search(
+        nextCovered,
+        [...selected, quote],
+        totalMinor + (quote.totalMinor ?? 0),
+      );
+    }
+  }
+
+  search(new Set(), [], 0);
+  if (!best) return undefined;
+  return {
+    merchantIds: best.selected.map((quote) => quote.merchantId),
+    totalMinor: best.totalMinor,
+    includesCeiling: best.selected.some((quote) => !quote.amountIsFinal),
+  };
+}
+
+export function selectCombination(
+  quotes: SelectableSupplierQuote[],
+  itemCount: number,
+  budgetMinor: number,
+): CombinationSelection | undefined {
+  try {
+    const exact = exactSelection(quotes, itemCount, budgetMinor);
+    if (exact) return { ...exact, strategy: "exact" };
+  } catch (error) {
+    console.warn("[Onyx selection] Exact cover failed; using greedy.", error);
+  }
+
+  const greedy = greedySelection(quotes, itemCount, budgetMinor);
+  return greedy ? { ...greedy, strategy: "greedy-fallback" } : undefined;
 }
