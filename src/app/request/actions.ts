@@ -11,11 +11,6 @@ export type RequestActionState = {
   parsed?: ParsedRequest;
 };
 
-export const initialRequestState: RequestActionState = {
-  ok: false,
-  message: "",
-};
-
 export async function parseRequest(
   _previous: RequestActionState,
   formData: FormData,

@@ -4,10 +4,12 @@ import { useActionState } from "react";
 
 import { SubmitButton } from "@/components/submit-button";
 
-import {
-  addSupplier,
-  initialSupplierState,
-} from "./actions";
+import { addSupplier, type SupplierActionState } from "./actions";
+
+const initialSupplierState: SupplierActionState = {
+  ok: false,
+  message: "",
+};
 
 export function SupplierForm() {
   const [state, action] = useActionState(addSupplier, initialSupplierState);

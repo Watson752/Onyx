@@ -14,11 +14,6 @@ export type SupplierActionState = {
   message: string;
 };
 
-export const initialSupplierState: SupplierActionState = {
-  ok: false,
-  message: "",
-};
-
 export async function addSupplier(
   _previous: SupplierActionState,
   formData: FormData,

@@ -6,7 +6,12 @@ import { useActionState } from "react";
 import { formatMoney } from "@/components/money";
 import { SubmitButton } from "@/components/submit-button";
 
-import { initialRequestState, parseRequest } from "./actions";
+import { parseRequest, type RequestActionState } from "./actions";
+
+const initialRequestState: RequestActionState = {
+  ok: false,
+  message: "",
+};
 
 export function RequestForm() {
   const [state, action] = useActionState(parseRequest, initialRequestState);
