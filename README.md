@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Onyx
 
 Onyx turns the suppliers a business already buys from into an ordering API —
