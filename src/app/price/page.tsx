@@ -7,6 +7,10 @@ import { parsedRequestSchema } from "@/lib/schemas";
 import { PricingView } from "./pricing-view";
 
 export const dynamic = "force-dynamic";
+// Without this, Vercel's unset-maxDuration default is well under the 60s
+// Hobby ceiling, and priceRequest can make several sequential Agnic calls
+// across suppliers.
+export const maxDuration = 60;
 
 function dollarsToMinor(
   value: string | string[] | undefined,
@@ -27,6 +31,8 @@ export default async function PricePage({
     requestId?: string | string[];
     maxTotalDollars?: string | string[];
     maxShippingDollars?: string | string[];
+    omitShipTo?: string | string[];
+    addressModeSet?: string | string[];
   }>;
 }) {
   const params = await searchParams;
@@ -77,7 +83,19 @@ export default async function PricePage({
       defaultShippingCap,
     ),
   };
-  const result = await priceRequest(parsed, caps);
+  const omitValues = Array.isArray(params.omitShipTo)
+    ? params.omitShipTo
+    : params.omitShipTo
+      ? [params.omitShipTo]
+      : [];
+  const addressModeWasSet =
+    (Array.isArray(params.addressModeSet)
+      ? params.addressModeSet[0]
+      : params.addressModeSet) === "1";
+  const result = await priceRequest(parsed, caps, {
+    omitShipToMerchantIds: new Set(omitValues),
+    autoCardholderFallback: !addressModeWasSet,
+  });
 
   return (
     <main className="mx-auto w-full max-w-6xl space-y-8 px-6 py-10">
@@ -87,8 +105,8 @@ export default async function PricePage({
         </p>
         <h1 className="text-3xl font-black">Price request #{request.id}</h1>
         <p className="mt-2 text-zinc-600">
-          One read-only quote per supplier. No order can be placed from this
-          application.
+          One read-only quote per supplier. Dispatch remains locked until a
+          separate approval records the exact basket and caps.
         </p>
       </section>
       <form
@@ -96,6 +114,17 @@ export default async function PricePage({
         className="grid gap-4 rounded-lg border bg-white p-5 sm:grid-cols-[1fr_1fr_auto]"
       >
         <input type="hidden" name="requestId" value={request.id} />
+        <input type="hidden" name="addressModeSet" value="1" />
+        {result.quotes
+          .filter((quote) => quote.addressMode !== "ship_to")
+          .map((quote) => (
+            <input
+              key={quote.merchantId}
+              type="hidden"
+              name="omitShipTo"
+              value={quote.merchantId}
+            />
+          ))}
         <label className="text-sm font-semibold">
           Maximum total (CAD dollars)
           <input
@@ -129,7 +158,7 @@ export default async function PricePage({
           safe cap refusal; no charge is possible.
         </p>
       </form>
-      <PricingView parsed={parsed} result={result} />
+      <PricingView requestId={request.id} parsed={parsed} result={result} />
     </main>
   );
 }

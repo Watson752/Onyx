@@ -1,14 +1,31 @@
 import { prisma } from "@/lib/prisma";
 
 import { SupplierForm } from "./supplier-form";
+import { SupplierTable } from "./supplier-table";
 
 export const dynamic = "force-dynamic";
+// Server Actions on this page (addSupplier) inherit this cap. On Vercel
+// Hobby it's clamped to 60s regardless — see supplier-form.tsx for why that's
+// fine: addSupplier only does the fast kickoff call now, not the full crawl.
+export const maxDuration = 60;
 
 export default async function SuppliersPage() {
-  const suppliers = await prisma.supplier.findMany({
+  const rows = await prisma.supplier.findMany({
     include: { _count: { select: { catalogItems: true } } },
     orderBy: { exploredAt: "desc" },
   });
+  const suppliers = rows.map((supplier) => ({
+    id: supplier.id,
+    url: supplier.url,
+    name: supplier.name,
+    agnicMerchantId: supplier.agnicMerchantId,
+    status: supplier.status,
+    rail: supplier.rail,
+    currency: supplier.currency,
+    explorePhase: supplier.explorePhase,
+    exploreError: supplier.exploreError,
+    catalogItemCount: supplier._count.catalogItems,
+  }));
 
   return (
     <main className="mx-auto w-full max-w-6xl space-y-8 px-6 py-10">
@@ -32,44 +49,7 @@ export default async function SuppliersPage() {
             No suppliers yet.
           </p>
         ) : (
-          <div className="overflow-x-auto rounded-lg border bg-white">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-zinc-100">
-                <tr>
-                  <th className="p-3">Supplier</th>
-                  <th className="p-3">Status</th>
-                  <th className="p-3">Rail</th>
-                  <th className="p-3">Currency</th>
-                  <th className="p-3">Catalog</th>
-                </tr>
-              </thead>
-              <tbody>
-                {suppliers.map((supplier) => (
-                  <tr key={supplier.id} className="border-t">
-                    <td className="p-3">
-                      <a
-                        href={supplier.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="font-semibold underline"
-                      >
-                        {supplier.name}
-                      </a>
-                      <div className="font-mono text-xs text-zinc-500">
-                        {supplier.agnicMerchantId}
-                      </div>
-                    </td>
-                    <td className="p-3">{supplier.status}</td>
-                    <td className="p-3">{supplier.rail ?? "unknown"}</td>
-                    <td className="p-3">{supplier.currency ?? "unknown"}</td>
-                    <td className="p-3">
-                      {supplier._count.catalogItems} items
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <SupplierTable suppliers={suppliers} />
         )}
       </section>
     </main>

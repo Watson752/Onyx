@@ -57,6 +57,45 @@ export type SpendingCaps = {
   maxShippingMinor: number;
 };
 
+export type AddressMode = "ship_to" | "cardholder" | "pickup";
+
+export type ShipTo = {
+  name: string;
+  street_address: string;
+  address_locality: string;
+  address_region: string;
+  postal_code: string;
+  address_country: string;
+  phone?: string;
+};
+
+export type ApprovedCartSnapshot = {
+  merchantId: string;
+  supplierName: string;
+  items: Array<{ sku: string; quantity: number }>;
+  displayItems: Array<{
+    title: string;
+    query: string;
+    sku: string;
+    quantity: number;
+  }>;
+  addressMode: AddressMode;
+  shipTo?: ShipTo;
+  constraints: {
+    max_total_minor: number;
+    max_shipping_minor: number;
+  };
+  amountMinor: number;
+  amountIsFinal: boolean;
+  currency: string;
+  fulfillmentOptionId?: string;
+  fulfillmentOption?: {
+    type: string;
+    title: string;
+    description?: string;
+  };
+};
+
 export type QuoteApiResult =
   | { ok: true; quote: AgnicQuote }
   | {

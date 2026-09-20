@@ -1,7 +1,5 @@
 import "server-only";
 
-import Anthropic from "@anthropic-ai/sdk";
-
 import { parsedRequestSchema, type ParsedRequest } from "./schemas";
 
 const SYSTEM_PROMPT = `You convert a cafe supply request into structured data.
@@ -20,26 +18,63 @@ type TextToJsonProvider = {
 };
 
 function runtimeProvider(): TextToJsonProvider {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey =
+    process.env.OPENROUTER_API_KEY?.trim() ||
+    process.env.LLM_API_KEY?.trim();
   if (!apiKey) {
-    throw new Error("ANTHROPIC_API_KEY is not configured in .env");
+    throw new Error(
+      "OPENROUTER_API_KEY (or LLM_API_KEY) is not configured in .env",
+    );
   }
+  const baseUrl = (
+    process.env.LLM_BASE_URL ?? "https://openrouter.ai/api/v1"
+  ).replace(/\/+$/, "");
 
-  const client = new Anthropic({ apiKey });
   return {
     async complete({ system, user, model }) {
-      const message = await client.messages.create({
-        model,
-        max_tokens: 1_024,
-        temperature: 0,
-        system,
-        messages: [{ role: "user", content: user }],
+      const openRouterModel =
+        model === "claude-sonnet-4-6"
+          ? "anthropic/claude-sonnet-4.6"
+          : model;
+      const response = await fetch(`${baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "X-OpenRouter-Title": "Onyx",
+          ...(process.env.OPENROUTER_SITE_URL
+            ? { "HTTP-Referer": process.env.OPENROUTER_SITE_URL }
+            : {}),
+        },
+        body: JSON.stringify({
+          model: openRouterModel,
+          max_tokens: 1_024,
+          temperature: 0,
+          messages: [
+            { role: "system", content: system },
+            { role: "user", content: user },
+          ],
+        }),
+        cache: "no-store",
       });
 
-      return message.content
-        .filter((block) => block.type === "text")
-        .map((block) => block.text)
-        .join("");
+      const body = (await response.json()) as {
+        choices?: Array<{ message?: { content?: string } }>;
+        error?: { message?: string };
+      };
+      if (!response.ok) {
+        throw new Error(
+          `OpenRouter HTTP ${response.status}: ${
+            body.error?.message ?? "request failed"
+          }`,
+        );
+      }
+
+      const content = body.choices?.[0]?.message?.content;
+      if (!content) {
+        throw new Error("OpenRouter returned no text completion.");
+      }
+      return content;
     },
   };
 }

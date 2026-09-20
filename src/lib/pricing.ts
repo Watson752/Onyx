@@ -5,6 +5,7 @@ import { findCandidates } from "./catalog";
 import type { ParsedRequest } from "./schemas";
 import { selectCombination } from "./selection";
 import type {
+  AddressMode,
   AgnicQuote,
   CatalogProduct,
   SpendingCaps,
@@ -37,11 +38,18 @@ export type SupplierQuoteResult = {
   totalMinor: number | null;
   amountIsFinal: boolean;
   currency: string;
+  addressMode: AddressMode;
+  autoOmittedShipTo: boolean;
   capBreach?: {
     kind: "shipping" | "total";
     limitMinor: number;
     actualMinor: number;
   };
+};
+
+export type PricingOptions = {
+  omitShipToMerchantIds?: ReadonlySet<string>;
+  autoCardholderFallback?: boolean;
 };
 
 export type PricingResult = {
@@ -145,6 +153,8 @@ function capRefusal(
   body: Record<string, unknown>,
   caps: SpendingCaps,
   currency: string,
+  addressMode: AddressMode,
+  autoOmittedShipTo: boolean,
 ): SupplierQuoteResult {
   const errorCode = String(body.error ?? body.code ?? "");
   const shipping = errorCode === "constraint_shipping_exceeded";
@@ -169,13 +179,28 @@ function capRefusal(
     totalMinor: shipping ? null : actualMinor,
     amountIsFinal: false,
     currency: String(body.currency ?? currency),
+    addressMode,
+    autoOmittedShipTo,
     capBreach: { kind, limitMinor, actualMinor },
   };
+}
+
+function isNoLocalFulfilment(quote: AgnicQuote) {
+  const reason = String(
+    quote.unfulfillable?.reason ?? quote.error ?? quote.state ?? "",
+  )
+    .toLowerCase()
+    .replaceAll("-", "_");
+  return (
+    reason === "no_local_fulfilment" ||
+    reason === "no_local_fulfillment"
+  );
 }
 
 export async function priceRequest(
   parsed: ParsedRequest,
   caps: SpendingCaps,
+  options: PricingOptions = {},
 ): Promise<PricingResult> {
   const discovery = await findCandidates(parsed);
   const bundles = groupCandidateBundles(parsed, discovery.candidates);
@@ -190,15 +215,60 @@ export async function priceRequest(
 
   const quotes: SupplierQuoteResult[] = [];
   for (const bundle of bundles) {
+    let usedOmitShipTo =
+      options.omitShipToMerchantIds?.has(bundle.merchantId) ?? false;
+    let autoOmittedShipTo = false;
     try {
-      const response = await quoteSupplier({
+      let response = await quoteSupplier({
         merchantId: bundle.merchantId,
         caps,
+        omitShipTo: usedOmitShipTo,
         items: bundle.items.map((item) => ({
           sku: item.product.sku,
           quantity: item.quantity,
         })),
       });
+
+      if (
+        response.ok &&
+        !usedOmitShipTo &&
+        options.autoCardholderFallback !== false &&
+        isNoLocalFulfilment(response.quote)
+      ) {
+        usedOmitShipTo = true;
+        autoOmittedShipTo = true;
+        response = await quoteSupplier({
+          merchantId: bundle.merchantId,
+          caps,
+          omitShipTo: true,
+          items: bundle.items.map((item) => ({
+            sku: item.product.sku,
+            quantity: item.quantity,
+          })),
+        });
+      }
+
+      const soleOption =
+        response.ok && response.quote.fulfillment_options?.length === 1
+          ? response.quote.fulfillment_options[0]
+          : undefined;
+      if (
+        response.ok &&
+        usedOmitShipTo &&
+        soleOption?.type === "pickup" &&
+        response.quote.selected_option_id !== soleOption.id
+      ) {
+        response = await quoteSupplier({
+          merchantId: bundle.merchantId,
+          caps,
+          omitShipTo: true,
+          fulfillmentOptionId: soleOption.id,
+          items: bundle.items.map((item) => ({
+            sku: item.product.sku,
+            quantity: item.quantity,
+          })),
+        });
+      }
 
       if (!response.ok) {
         const errorCode = String(
@@ -209,7 +279,14 @@ export async function priceRequest(
           errorCode === "constraint_total_exceeded"
         ) {
           quotes.push(
-            capRefusal(bundle, response.body, caps, parsed.currency),
+            capRefusal(
+              bundle,
+              response.body,
+              caps,
+              parsed.currency,
+              usedOmitShipTo ? "cardholder" : "ship_to",
+              autoOmittedShipTo,
+            ),
           );
         } else {
           throw new Error(
@@ -220,6 +297,17 @@ export async function priceRequest(
       }
 
       const quote = response.quote;
+      const selectedOption = quote.fulfillment_options?.find(
+        (option) => option.id === quote.selected_option_id,
+      );
+      const pickupWithShipTo =
+        selectedOption?.type === "pickup" && !usedOmitShipTo;
+      const addressMode: AddressMode =
+        selectedOption?.type === "pickup" && usedOmitShipTo
+          ? "pickup"
+          : usedOmitShipTo
+            ? "cardholder"
+            : "ship_to";
       const subtotal =
         typeof quote.subtotal_minor === "number"
           ? quote.subtotal_minor
@@ -241,7 +329,13 @@ export async function priceRequest(
           quote,
           outcome: "unfulfillable",
           ready: false,
-          note: `Cannot deliver to the configured Toronto destination: ${
+          note: `Cannot fulfill using ${
+            addressMode === "ship_to"
+              ? "the configured ship_to address"
+              : addressMode === "cardholder"
+                ? "the cardholder address"
+                : "pickup"
+          }: ${
             quote.unfulfillable.reason ?? "merchant returned unfulfillable"
           }. Nothing charged.`,
           subtotalMinor: subtotal,
@@ -249,11 +343,15 @@ export async function priceRequest(
           totalMinor: null,
           amountIsFinal: false,
           currency: quote.currency ?? parsed.currency,
+          addressMode,
+          autoOmittedShipTo,
         });
         continue;
       }
 
-      const readinessNote = notReadyReason(quote);
+      const readinessNote = pickupWithShipTo
+        ? "Pickup cannot be combined with ship_to. Omit ship_to and quote again."
+        : notReadyReason(quote);
       quotes.push({
         merchantId: bundle.merchantId,
         merchantName: bundle.merchantName,
@@ -271,6 +369,8 @@ export async function priceRequest(
         totalMinor: total,
         amountIsFinal: quote.amount_is_final === true,
         currency: quote.currency ?? parsed.currency,
+        addressMode,
+        autoOmittedShipTo,
       });
     } catch (error) {
       quotes.push({
@@ -286,6 +386,8 @@ export async function priceRequest(
         totalMinor: null,
         amountIsFinal: false,
         currency: parsed.currency,
+        addressMode: usedOmitShipTo ? "cardholder" : "ship_to",
+        autoOmittedShipTo,
       });
     }
   }

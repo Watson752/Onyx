@@ -4,13 +4,25 @@ import type {
   CatalogProduct,
   ExploreResult,
   QuoteApiResult,
+  ShipTo,
   SpendingCaps,
 } from "./types";
 
 const BASE_URL = "https://api.agnic.ai/api/autofill";
+const API_URL = "https://api.agnic.ai/api";
 const REQUEST_TIMEOUT_MS = 5 * 60 * 1_000;
-const EXPLORE_POLL_MS = 5_000;
-const EXPLORE_DEADLINE_MS = 5 * 60 * 1_000;
+// Exceeding this throws a clean, controlled timeout before Vercel Hobby's 60s
+// hard kill — an "uncertain" outcome we chose beats one the platform forces.
+const DISPATCH_TIMEOUT_MS = 40_000;
+const EXPLORE_START_TIMEOUT_MS = 45_000;
+const EXPLORE_POLL_TIMEOUT_MS = 30_000;
+
+export const EXPLORE_TERMINAL_ERROR_STATUSES = [
+  "merchant_error",
+  "worker_error",
+  "timeout",
+  "payment_gate_hit",
+];
 
 type JsonRecord = Record<string, unknown>;
 
@@ -20,17 +32,14 @@ function record(value: unknown): JsonRecord {
     : {};
 }
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 function requiredEnv(name: string) {
   const value = process.env[name]?.trim();
   if (!value) throw new Error(`${name} is not configured in .env`);
   return value;
 }
 
-function shippingDestination() {
+export function shippingDestination(): ShipTo {
+  const phone = process.env.SHIP_TO_PHONE?.trim();
   return {
     name: requiredEnv("SHIP_TO_NAME"),
     street_address: requiredEnv("SHIP_TO_STREET"),
@@ -38,10 +47,11 @@ function shippingDestination() {
     address_region: requiredEnv("SHIP_TO_REGION"),
     postal_code: requiredEnv("SHIP_TO_POSTAL"),
     address_country: requiredEnv("SHIP_TO_COUNTRY").toUpperCase(),
+    ...(phone ? { phone } : {}),
   };
 }
 
-class AgnicHttpError extends Error {
+export class AgnicHttpError extends Error {
   constructor(
     public readonly status: number,
     public readonly body: unknown,
@@ -54,11 +64,12 @@ async function agnicRequest(
   method: "GET" | "POST",
   endpoint: string,
   body?: unknown,
+  timeoutMs = REQUEST_TIMEOUT_MS,
 ): Promise<unknown> {
   const token = process.env.AGNIC_TOKEN;
   if (!token) throw new Error("AGNIC_TOKEN is not configured in .env");
 
-  const url = `${BASE_URL}${endpoint}`;
+  const url = endpoint.startsWith("https://") ? endpoint : `${BASE_URL}${endpoint}`;
   console.log("[Agnic request]", {
     method,
     url,
@@ -66,7 +77,7 @@ async function agnicRequest(
   });
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch(url, {
@@ -102,6 +113,97 @@ async function agnicRequest(
   } finally {
     clearTimeout(timeout);
   }
+}
+
+export type AgnicResponse = {
+  status: number;
+  body: JsonRecord;
+};
+
+async function agnicResponse(
+  method: "GET" | "POST",
+  endpoint: string,
+  body?: unknown,
+  timeoutMs = REQUEST_TIMEOUT_MS,
+): Promise<AgnicResponse> {
+  const token = process.env.AGNIC_TOKEN;
+  if (!token) throw new Error("AGNIC_TOKEN is not configured in .env");
+
+  const url = endpoint.startsWith("https://") ? endpoint : `${BASE_URL}${endpoint}`;
+  console.log("[Agnic request]", {
+    method,
+    url,
+    ...(body === undefined ? {} : { body }),
+  });
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, {
+      method,
+      headers: {
+        "X-Agnic-Token": token,
+        ...(body === undefined ? {} : { "Content-Type": "application/json" }),
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+      cache: "no-store",
+      signal: controller.signal,
+    });
+    const text = await response.text();
+    let parsed: unknown = null;
+    try {
+      parsed = text ? JSON.parse(text) : null;
+    } catch {
+      parsed = { raw_response: text };
+    }
+    const responseBody = record(parsed);
+    console.log("[Agnic response]", {
+      method,
+      url,
+      status: response.status,
+      body: responseBody,
+    });
+    return { status: response.status, body: responseBody };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function dispatchOrder(
+  body: Record<string, unknown>,
+): Promise<AgnicResponse> {
+  return agnicResponse("POST", "/dispatch", body, DISPATCH_TIMEOUT_MS);
+}
+
+export async function getOrder(orderId: string): Promise<AgnicResponse> {
+  return agnicResponse(
+    "GET",
+    `/orders/${encodeURIComponent(orderId)}`,
+    undefined,
+    30_000,
+  );
+}
+
+export async function getOrderEvidence(
+  orderId: string,
+): Promise<AgnicResponse> {
+  return agnicResponse(
+    "GET",
+    `/orders/${encodeURIComponent(orderId)}/evidence`,
+    undefined,
+    30_000,
+  );
+}
+
+export async function getApprovalStatus(
+  approvalToken: string,
+): Promise<AgnicResponse> {
+  return agnicResponse(
+    "GET",
+    `${API_URL}/approvals/${encodeURIComponent(approvalToken)}`,
+    undefined,
+    30_000,
+  );
 }
 
 function catalogFromExplore(
@@ -156,50 +258,57 @@ function catalogFromExplore(
     });
 }
 
-export async function exploreSupplier(
+export type ExploreStart = {
+  orderId: string | null;
+  status: string;
+  body: JsonRecord;
+};
+
+/**
+ * Kicks off an explore run and returns immediately with whatever Agnic gave
+ * back (an order id to poll, or an already-"explored" result). This never
+ * blocks on the multi-minute crawl itself — callers persist orderId/status
+ * and poll `pollExploreOnce` from a separate short-lived request, since a
+ * single serverless invocation can't hold a connection open long enough.
+ */
+export async function startExplore(
   merchantUrl: string,
   goal: string,
-): Promise<ExploreResult> {
+): Promise<ExploreStart> {
   const initial = record(
-    await agnicRequest("POST", "/explore", {
-      merchant_url: merchantUrl,
-      goal,
-    }),
+    await agnicRequest(
+      "POST",
+      "/explore",
+      { merchant_url: merchantUrl, goal },
+      EXPLORE_START_TIMEOUT_MS,
+    ),
   );
+  return {
+    orderId: typeof initial.order_id === "string" ? initial.order_id : null,
+    status: typeof initial.status === "string" ? initial.status : "unknown",
+    body: initial,
+  };
+}
 
-  const orderId =
-    typeof initial.order_id === "string" ? initial.order_id : undefined;
-  let finalBody = initial;
-  let status = typeof initial.status === "string" ? initial.status : "unknown";
+/** One status check against an in-progress explore order. Not a poll loop. */
+export async function pollExploreOnce(orderId: string): Promise<JsonRecord> {
+  return record(
+    await agnicRequest(
+      "GET",
+      `/orders/${encodeURIComponent(orderId)}`,
+      undefined,
+      EXPLORE_POLL_TIMEOUT_MS,
+    ),
+  );
+}
 
-  if (orderId && status !== "explored") {
-    const deadline = Date.now() + EXPLORE_DEADLINE_MS;
-    while (Date.now() < deadline) {
-      await sleep(EXPLORE_POLL_MS);
-      finalBody = record(
-        await agnicRequest("GET", `/orders/${encodeURIComponent(orderId)}`),
-      );
-      status =
-        typeof finalBody.status === "string" ? finalBody.status : "unknown";
-      if (status === "explored") break;
-      if (
-        [
-          "merchant_error",
-          "worker_error",
-          "timeout",
-          "payment_gate_hit",
-        ].includes(status)
-      ) {
-        throw new Error(
-          `Explore ended with ${status}: ${String(finalBody.error_message ?? "")}`,
-        );
-      }
-    }
-    if (status !== "explored") {
-      throw new Error("Explore did not complete within five minutes.");
-    }
-  }
-
+export function buildExploreResult(
+  merchantUrl: string,
+  initial: JsonRecord,
+  finalBody: JsonRecord,
+): ExploreResult {
+  const status =
+    typeof finalBody.status === "string" ? finalBody.status : "unknown";
   const discovered = record(finalBody.discovered_items);
   const merchantId = [finalBody.merchant_id, initial.merchant_id, discovered.merchant_id].find(
     (value): value is string => typeof value === "string",
@@ -278,13 +387,18 @@ export async function quoteSupplier(input: {
   merchantId: string;
   items: Array<{ sku: string; quantity: number }>;
   caps: SpendingCaps;
+  fulfillmentOptionId?: string;
+  omitShipTo?: boolean;
 }): Promise<QuoteApiResult> {
   try {
     const quote = record(
       await agnicRequest("POST", "/shopify/quote", {
         merchant_id: input.merchantId,
         items: input.items,
-        ship_to: shippingDestination(),
+        ...(input.omitShipTo ? {} : { ship_to: shippingDestination() }),
+        ...(input.fulfillmentOptionId
+          ? { fulfillment_option_id: input.fulfillmentOptionId }
+          : {}),
         constraints: {
           max_total_minor: input.caps.maxTotalMinor,
           max_shipping_minor: input.caps.maxShippingMinor,

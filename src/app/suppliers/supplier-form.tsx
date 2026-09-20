@@ -31,9 +31,10 @@ export function SupplierForm() {
       </div>
       <p className="text-sm text-amber-700">
         Explore is read-only, but it drives the live checkout and can take
-        about two minutes. Keep this page open.
+        about two minutes. The table below keeps polling for the result even
+        if you navigate away and come back.
       </p>
-      <SubmitButton idle="Explore supplier" pending="Exploring (up to 2 minutes)…" />
+      <SubmitButton idle="Explore supplier" pending="Starting explore…" />
       {state.message ? (
         <p
           role="status"

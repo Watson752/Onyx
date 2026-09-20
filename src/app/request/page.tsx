@@ -1,5 +1,9 @@
 import { RequestForm } from "./request-form";
 
+// Covers the parseRequest Server Action's LLM call, which has no hard
+// timeout of its own.
+export const maxDuration = 60;
+
 export default function RequestPage() {
   return (
     <main className="mx-auto w-full max-w-4xl space-y-8 px-6 py-10">

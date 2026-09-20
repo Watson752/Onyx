@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL_POOLED")
+  directUrl = env("DATABASE_URL")
 }
 
 model Supplier {
@@ -16,6 +17,9 @@ model Supplier {
   rail            String?
   currency        String?
   exploredAt      DateTime?
+  explorePhase    String        @default("done")
+  exploreOrderId  String?
+  exploreError    String?
   catalogItems    CatalogItem[]
 }
 
@@ -33,9 +37,69 @@ model CatalogItem {
 }
 
 model Request {
-  id          Int      @id @default(autoincrement())
-  rawText     String
-  parsedJson  String
-  budgetMinor Int
-  createdAt   DateTime @default(now())
+  id              Int             @id @default(autoincrement())
+  rawText         String
+  parsedJson      String
+  budgetMinor     Int
+  createdAt       DateTime        @default(now())
+  approvalBatches ApprovalBatch[]
+  approvals       Approval[]
+}
+
+model ApprovalBatch {
+  id               String     @id @default(cuid())
+  requestId        Int
+  cartsJson        String
+  createdAt        DateTime   @default(now())
+  confirmedAt      DateTime?
+  confirmationText String?
+  request          Request    @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  approvals        Approval[]
+
+  @@index([requestId, createdAt])
+}
+
+model Approval {
+  id                       String        @id @default(cuid())
+  batchId                  String
+  requestId                Int
+  supplierName             String
+  merchantId               String
+  itemsJson                String
+  displayItemsJson         String
+  addressMode              String        @default("ship_to")
+  shipToJson               String?
+  constraintsJson          String
+  amountMinor              Int
+  currency                 String
+  fulfillmentOptionId      String?
+  userPrompt               String
+  userConfirmationText     String
+  userApprovedAt           DateTime
+  status                   String        @default("approved")
+  claimedAt                DateTime?
+  agnicOrderId             String?       @unique
+  approvalToken            String?
+  approvalUrl              String?
+  approvalExpiresAt        DateTime?
+  dispatchResponseJson     String?
+  orderResponseJson        String?
+  amountChargedMinor       Int?
+  retryable                Boolean?
+  retryabilityKnown        Boolean       @default(false)
+  retryAction              String?
+  evidenceScreenshotsCount Int?
+  evidenceUrl              String?
+  decision                 String?
+  decisionReason           String?
+  refusalFigureMinor       Int?
+  refusalCapMinor          Int?
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+  batch                    ApprovalBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  request                  Request       @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, merchantId])
+  @@index([requestId, createdAt])
+  @@index([status])
 }

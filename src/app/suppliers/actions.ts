@@ -2,16 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 
-import { exploreSupplier } from "@/lib/agnic";
+import { startSupplierExplore } from "@/lib/explore";
 import { prisma } from "@/lib/prisma";
 import { supplierFormSchema } from "@/lib/schemas";
-
-const EXPLORE_GOAL =
-  "Buy supplies for a cafe, delivered in Ontario, Canada";
 
 export type SupplierActionState = {
   ok: boolean;
   message: string;
+  supplierId?: number;
+  phase?: "polling" | "done";
 };
 
 export async function addSupplier(
@@ -26,53 +25,26 @@ export async function addSupplier(
   }
 
   try {
-    const explored = await exploreSupplier(parsed.data.url, EXPLORE_GOAL);
-    const uniqueProducts = [
-      ...new Map(
-        explored.products.map((product) => [product.sku, product]),
-      ).values(),
-    ];
-
-    await prisma.$transaction(async (tx) => {
-      const supplier = await tx.supplier.upsert({
-        where: { url: parsed.data.url },
-        create: {
-          url: parsed.data.url,
-          name: explored.name,
-          agnicMerchantId: explored.merchantId,
-          status: explored.status,
-          rail: explored.rail,
-          currency: explored.currency,
-          exploredAt: new Date(),
-        },
-        update: {
-          name: explored.name,
-          agnicMerchantId: explored.merchantId,
-          status: explored.status,
-          rail: explored.rail,
-          currency: explored.currency,
-          exploredAt: new Date(),
-        },
-      });
-
-      await tx.catalogItem.deleteMany({ where: { supplierId: supplier.id } });
-      if (uniqueProducts.length > 0) {
-        await tx.catalogItem.createMany({
-          data: uniqueProducts.map((product) => ({
-            supplierId: supplier.id,
-            sku: product.sku,
-            title: product.title,
-            priceMinor: product.priceMinor,
-            currency: product.currency,
-          })),
-        });
-      }
-    });
-
+    const supplier = await startSupplierExplore(parsed.data.url);
     revalidatePath("/suppliers");
+
+    if (supplier.explorePhase === "done") {
+      const count = await prisma.catalogItem.count({
+        where: { supplierId: supplier.id },
+      });
+      return {
+        ok: true,
+        message: `Stored ${supplier.name} with ${count} matched product(s).`,
+        supplierId: supplier.id,
+        phase: "done",
+      };
+    }
+
     return {
       ok: true,
-      message: `Stored ${explored.name} with ${uniqueProducts.length} matched product(s).`,
+      message: `Exploring ${parsed.data.url}. This can take about two minutes — the table below updates on its own.`,
+      supplierId: supplier.id,
+      phase: "polling",
     };
   } catch (error) {
     return {
