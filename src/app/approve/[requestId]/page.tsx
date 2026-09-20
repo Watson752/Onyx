@@ -60,16 +60,18 @@ export default async function ApprovePage({
     });
   } catch (error) {
     return (
-      <main className="mx-auto w-full max-w-4xl space-y-4 px-6 py-10">
-        <p className="text-sm font-bold uppercase tracking-widest text-zinc-500">
+      <main className="mx-auto w-full max-w-4xl space-y-6 px-6 py-16">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-espresso-faint">
           Approval preview refused safely
         </p>
-        <h1 className="text-3xl font-black">A fresh quote is required</h1>
-        <p className="rounded-lg border border-amber-300 bg-amber-50 p-4">
+        <h1 className="font-display text-4xl font-semibold tracking-tight text-espresso sm:text-5xl">
+          A fresh quote is required
+        </h1>
+        <p className="rounded-2xl border border-amberwarm/30 bg-amberwarm-soft p-6 text-amberwarm-deep">
           {error instanceof Error ? error.message : String(error)}
         </p>
         <Link
-          className="inline-block font-semibold underline"
+          className="inline-block rounded-full border border-espresso px-7 py-3 text-sm font-medium text-espresso hover:bg-espresso hover:text-bone"
           href={`/price?requestId=${request.id}`}
         >
           Return to pricing
@@ -87,93 +89,99 @@ export default async function ApprovePage({
   const confirm = confirmApproval.bind(null, batch.id);
 
   return (
-    <main className="mx-auto w-full max-w-5xl space-y-8 px-6 py-10">
+    <main className="mx-auto w-full max-w-5xl space-y-14 px-6 py-16">
       <section>
-        <p className="text-sm font-bold uppercase tracking-widest text-zinc-500">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-espresso-faint">
           Approval required
         </p>
-        <h1 className="text-3xl font-black">Approve request #{request.id}</h1>
-        <p className="mt-2 text-zinc-600">
+        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-espresso sm:text-5xl">
+          Approve request #{request.id}
+        </h1>
+        <p className="mt-4 max-w-2xl text-espresso-soft">
           One independent order will be placed per supplier. Review every
           item and cap before confirming.
         </p>
       </section>
 
-      <div className="space-y-5">
+      <div className="space-y-8">
         {carts.map((cart) => (
           <article
             key={cart.merchantId}
-            className="overflow-hidden rounded-lg border-2 border-zinc-900 bg-white"
+            className="overflow-hidden rounded-2xl border border-line-strong bg-cream"
           >
-            <header className="flex flex-wrap items-start justify-between gap-3 bg-zinc-100 p-4">
+            <header className="flex flex-wrap items-start justify-between gap-4 border-b border-line bg-beige px-8 py-6">
               <div>
-                <h2 className="text-xl font-bold">{cart.supplierName}</h2>
-                <p className="font-mono text-xs text-zinc-500">
+                <h2 className="font-display text-2xl font-semibold tracking-tight text-espresso">
+                  {cart.supplierName}
+                </h2>
+                <p className="mt-1 font-mono text-xs text-espresso-faint">
                   {cart.merchantId}
                 </p>
               </div>
               <span
-                className={`rounded px-2 py-1 text-xs font-black ${
+                className={`inline-flex items-center rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] ${
                   cart.amountIsFinal
-                    ? "bg-emerald-100 text-emerald-900"
-                    : "bg-amber-100 text-amber-950"
+                    ? "bg-sage-soft text-sage-deep"
+                    : "bg-amberwarm-soft text-amberwarm-deep"
                 }`}
               >
-                {cart.amountIsFinal ? "FINAL" : "CEILING"}
+                {cart.amountIsFinal ? "Final" : "Ceiling"}
               </span>
             </header>
 
-            <div className="divide-y">
+            <div className="divide-y divide-line">
               {cart.displayItems.map((item) => (
                 <div
                   key={`${item.sku}-${item.query}`}
-                  className="grid gap-1 p-4 sm:grid-cols-[1fr_auto]"
+                  className="grid gap-1 px-8 py-6 sm:grid-cols-[1fr_auto] sm:items-baseline"
                 >
                   <div>
-                    <p className="font-semibold">{item.title}</p>
-                    <p className="text-sm text-zinc-500">
+                    <p className="font-medium text-espresso">{item.title}</p>
+                    <p className="mt-1 text-sm text-espresso-faint">
                       For “{item.query}” · {item.sku}
                     </p>
                   </div>
-                  <p className="font-bold">Qty {item.quantity}</p>
+                  <p className="tabular-nums text-espresso-soft">
+                    Qty {item.quantity}
+                  </p>
                 </div>
               ))}
             </div>
 
-            <div className="grid gap-4 border-t bg-zinc-50 p-4 sm:grid-cols-2">
+            <div className="grid gap-8 border-t border-line bg-bone px-8 py-7 sm:grid-cols-2">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint">
                   {cart.amountIsFinal ? "Delivered total" : "Checkout ceiling"}
                 </p>
-                <p className="text-2xl font-black">
+                <p className="mt-2 font-display text-4xl font-semibold tabular-nums tracking-tight text-espresso">
                   <Money
                     amountMinor={cart.amountMinor}
                     currency={cart.currency}
                   />
                 </p>
                 {!cart.amountIsFinal ? (
-                  <p className="mt-1 text-sm text-amber-900">
+                  <p className="mt-3 text-sm text-amberwarm-deep">
                     Tax is added at checkout. The total cap includes 20%
                     headroom above this incomplete amount.
                   </p>
                 ) : null}
               </div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint">
                   Caps sent verbatim
                 </p>
-                <p>
+                <p className="mt-2 text-espresso-soft">
                   Total:{" "}
-                  <strong>
+                  <strong className="font-medium tabular-nums text-espresso">
                     {formatMoney(
                       cart.constraints.max_total_minor,
                       cart.currency,
                     )}
                   </strong>
                 </p>
-                <p>
+                <p className="text-espresso-soft">
                   Shipping:{" "}
-                  <strong>
+                  <strong className="font-medium tabular-nums text-espresso">
                     {formatMoney(
                       cart.constraints.max_shipping_minor,
                       cart.currency,
@@ -181,23 +189,23 @@ export default async function ApprovePage({
                   </strong>
                 </p>
               </div>
-              <div className="sm:col-span-2">
-                <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+              <div className="border-t border-line pt-6 sm:col-span-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint">
                   Address mode
                 </p>
                 {cart.addressMode === "ship_to" && cart.shipTo ? (
-                  <p>
+                  <p className="mt-2 text-espresso-soft">
                     ship_to: {cart.shipTo.name}, {cart.shipTo.street_address},{" "}
                     {cart.shipTo.address_locality}, {cart.shipTo.address_region}{" "}
                     {cart.shipTo.postal_code}, {cart.shipTo.address_country}
                   </p>
                 ) : cart.addressMode === "cardholder" ? (
-                  <p>
+                  <p className="mt-2 text-espresso-soft">
                     Cardholder saved address. The ship_to field will be
                     omitted from quote and dispatch.
                   </p>
                 ) : (
-                  <p>
+                  <p className="mt-2 text-espresso-soft">
                     Pickup. No address will be sent.
                     {cart.fulfillmentOption
                       ? ` ${cart.fulfillmentOption.title} is selected.`
@@ -205,7 +213,7 @@ export default async function ApprovePage({
                   </p>
                 )}
                 {cart.fulfillmentOption ? (
-                  <p className="mt-1 text-sm text-zinc-600">
+                  <p className="mt-2 text-sm text-espresso-faint">
                     Fulfilment: {cart.fulfillmentOption.title} (
                     {cart.fulfillmentOption.type})
                   </p>
@@ -216,23 +224,26 @@ export default async function ApprovePage({
         ))}
       </div>
 
-      <form action={confirm} className="space-y-4 rounded-lg border p-5">
-        <label className="block font-semibold">
+      <form
+        action={confirm}
+        className="space-y-6 rounded-2xl border border-line bg-cream p-8"
+      >
+        <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint">
           Your confirmation
           <input
             name="confirmationText"
             required
             defaultValue="I approve these supplier orders and spending caps."
-            className="mt-1 block w-full rounded border border-zinc-300 px-3 py-2 font-normal"
+            className="mt-2 block w-full rounded-xl border border-line-strong bg-bone px-4 py-3 text-base font-normal tracking-normal normal-case text-espresso focus:border-terracotta focus:outline-none focus:ring-4 focus:ring-terracotta/10"
           />
         </label>
-        <label className="flex items-start gap-2 text-sm">
+        <label className="flex items-start gap-3 text-sm text-espresso-soft">
           <input
             type="checkbox"
             name="understandsCharge"
             value="yes"
             required
-            className="mt-1"
+            className="mt-1 size-4 accent-terracotta"
           />
           <span>
             I understand this confirmation creates one approval per supplier

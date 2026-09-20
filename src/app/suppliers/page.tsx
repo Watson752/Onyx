@@ -28,13 +28,15 @@ export default async function SuppliersPage() {
   }));
 
   return (
-    <main className="mx-auto w-full max-w-6xl space-y-8 px-6 py-10">
+    <main className="mx-auto w-full max-w-6xl space-y-14 px-6 py-16">
       <section>
-        <p className="text-sm font-bold uppercase tracking-widest text-zinc-500">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-espresso-faint">
           Step 1
         </p>
-        <h1 className="text-3xl font-black">Supplier onboarding</h1>
-        <p className="mt-2 max-w-2xl text-zinc-600">
+        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-espresso sm:text-5xl">
+          Supplier onboarding
+        </h1>
+        <p className="mt-4 max-w-2xl text-espresso-soft">
           Teach Agnic a supplier checkout and save the products it discovers.
           Nothing is purchased.
         </p>
@@ -42,10 +44,12 @@ export default async function SuppliersPage() {
 
       <SupplierForm />
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-bold">Stored suppliers</h2>
+      <section className="space-y-5">
+        <h2 className="font-display text-2xl font-semibold tracking-tight text-espresso">
+          Stored suppliers
+        </h2>
         {suppliers.length === 0 ? (
-          <p className="rounded border border-dashed p-6 text-zinc-500">
+          <p className="rounded-2xl border border-dashed border-line-strong bg-cream p-10 text-center text-espresso-faint">
             No suppliers yet.
           </p>
         ) : (

@@ -140,56 +140,72 @@ function DispatchCard({ initial }: { initial: DispatchApproval }) {
 
   return (
     <article
-      className={`rounded-lg border-2 p-5 ${
+      className={`rounded-2xl border p-8 ${
         isRefusal
-          ? "border-amber-400 bg-amber-50"
+          ? "border-amberwarm/40 bg-amberwarm-soft"
           : isUncertain
-            ? "border-orange-500 bg-orange-50"
+            ? "border-amberwarm/60 bg-amberwarm-soft"
             : approval.status === "succeeded"
-              ? "border-emerald-500 bg-emerald-50"
-              : "border-zinc-300 bg-white"
+              ? "border-sage/40 bg-sage-soft"
+              : "border-line bg-cream"
       }`}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold">{approval.supplierName}</h2>
-          <p className="text-sm text-zinc-600">
+          <h2 className="font-display text-2xl font-semibold tracking-tight text-espresso">
+            {approval.supplierName}
+          </h2>
+          <p className="mt-1 text-sm tabular-nums text-espresso-soft">
             Approved {formatMoney(approval.amountMinor, approval.currency)}
           </p>
         </div>
-        <span className="rounded bg-zinc-900 px-2 py-1 text-xs font-bold uppercase text-white">
+        <span
+          className={`inline-flex items-center rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] ${
+            isUncertain
+              ? "bg-amberwarm text-bone"
+              : isRefusal
+                ? "bg-amberwarm-soft text-amberwarm-deep ring-1 ring-amberwarm/40"
+                : approval.status === "succeeded"
+                  ? "bg-sage text-bone"
+                  : approval.status === "failed"
+                    ? "bg-brick-soft text-brick"
+                    : "bg-beige-deep text-espresso-soft"
+          }`}
+        >
           {approval.status.replaceAll("_", " ")}
         </span>
       </div>
 
       {approval.agnicOrderId ? (
-        <p className="mt-3 font-mono text-xs">
+        <p className="mt-5 font-mono text-xs text-espresso-faint">
           Order: {approval.agnicOrderId}
         </p>
       ) : null}
       {approval.amountChargedMinor !== null ? (
-        <p className="mt-3 text-lg font-bold">
+        <p className="mt-5 font-display text-3xl font-semibold tabular-nums tracking-tight text-espresso">
           Charged{" "}
           {formatMoney(approval.amountChargedMinor, approval.currency)}
         </p>
       ) : null}
       {approval.decision ? (
-        <div className="mt-3">
-          <p className="font-semibold">{approval.decision}</p>
-          <p className="text-sm text-zinc-700">{approval.decisionReason}</p>
+        <div className="mt-5">
+          <p className="font-medium text-espresso">{approval.decision}</p>
+          <p className="mt-1 text-sm text-espresso-soft">
+            {approval.decisionReason}
+          </p>
         </div>
       ) : null}
       {isUncertain ? (
-        <p className="mt-3 rounded bg-orange-100 p-3 font-semibold text-orange-950">
+        <p className="mt-5 rounded-xl bg-amberwarm/15 px-5 py-4 font-medium text-amberwarm-deep">
           Money may have moved. Do not retry or auto-refund. Check the card
           statement.
         </p>
       ) : null}
       {isRefusal ? (
-        <div className="mt-3">
+        <div className="mt-5">
           {approval.refusalFigureMinor !== null &&
           approval.refusalCapMinor !== null ? (
-            <p className="font-semibold">
+            <p className="font-medium tabular-nums text-espresso">
               Observed{" "}
               {formatMoney(approval.refusalFigureMinor, approval.currency)}{" "}
               against cap{" "}
@@ -197,13 +213,13 @@ function DispatchCard({ initial }: { initial: DispatchApproval }) {
               Nothing was charged.
             </p>
           ) : (
-            <p className="font-semibold">
+            <p className="font-medium text-espresso">
               Agnic refused before charging.
             </p>
           )}
           <Link
             href={`/approve/${approval.requestId}`}
-            className="mt-2 inline-block font-semibold underline"
+            className="mt-4 inline-block rounded-full border border-espresso px-6 py-2.5 text-sm font-medium text-espresso hover:bg-espresso hover:text-bone"
           >
             Re-quote and request a new approval
           </Link>
@@ -212,23 +228,23 @@ function DispatchCard({ initial }: { initial: DispatchApproval }) {
       {approval.approvalUrl &&
       (approval.status === "approval_required" ||
         approval.status === "cvv_refresh_required") ? (
-        <div className="mt-4 rounded border bg-white p-3">
+        <div className="mt-6 rounded-xl border border-line bg-cream p-6">
           <a
             href={approval.approvalUrl}
             target="_blank"
             rel="noreferrer"
-            className="font-bold underline"
+            className="font-medium text-terracotta underline decoration-terracotta/40 underline-offset-4 hover:text-terracotta-deep"
           >
             Open secure approval
           </a>
           {approval.status === "approval_required" ? (
-            <p className="mt-1 text-sm">
+            <p className="mt-2 text-sm text-espresso-soft">
               Complete the passkey step. Onyx polls the approval endpoint and
               will dispatch exactly once more with the returned token.
             </p>
           ) : (
             <>
-              <p className="mt-1 text-sm">
+              <p className="mt-2 text-sm text-espresso-soft">
                 Enter any three digits there, then use the controlled resend
                 below.
               </p>
@@ -239,7 +255,7 @@ function DispatchCard({ initial }: { initial: DispatchApproval }) {
                   resumeAttempted.current = true;
                   void dispatch("resume");
                 }}
-                className="mt-3 rounded bg-zinc-950 px-3 py-2 font-semibold text-white"
+                className="mt-4 rounded-full bg-terracotta px-6 py-2.5 text-sm font-medium text-bone hover:bg-terracotta-deep"
               >
                 I refreshed CVV — resend once
               </button>
@@ -248,12 +264,12 @@ function DispatchCard({ initial }: { initial: DispatchApproval }) {
         </div>
       ) : null}
       {approval.evidenceUrl ? (
-        <p className="mt-4">
+        <p className="mt-6">
           <a
             href={approval.evidenceUrl}
             target="_blank"
             rel="noreferrer"
-            className="font-semibold underline"
+            className="font-medium text-terracotta underline decoration-terracotta/40 underline-offset-4 hover:text-terracotta-deep"
           >
             View evidence
             {approval.evidenceScreenshotsCount !== null
@@ -263,10 +279,10 @@ function DispatchCard({ initial }: { initial: DispatchApproval }) {
         </p>
       ) : null}
       {message ? (
-        <p className="mt-3 text-sm font-semibold text-zinc-700">{message}</p>
+        <p className="mt-5 text-sm text-espresso-soft">{message}</p>
       ) : null}
       {pollCapReached && stillPolling(approval.status) ? (
-        <div className="mt-3 text-sm font-semibold text-zinc-700">
+        <div className="mt-5 text-sm text-espresso-soft">
           <p>
             Five-minute automatic polling cap reached. The stored order id is
             safe and Onyx will not re-dispatch.
@@ -278,7 +294,7 @@ function DispatchCard({ initial }: { initial: DispatchApproval }) {
                 setMessage(error instanceof Error ? error.message : String(error));
               })
             }
-            className="mt-2 rounded border border-zinc-400 bg-white px-3 py-1"
+            className="mt-3 rounded-full border border-line-strong bg-cream px-5 py-2 text-espresso hover:border-espresso"
           >
             Check status once
           </button>
@@ -294,7 +310,7 @@ export function DispatchRunner({
   approvals: DispatchApproval[];
 }) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       {approvals.map((approval) => (
         <DispatchCard key={approval.id} initial={approval} />
       ))}

@@ -6,13 +6,15 @@ export const maxDuration = 60;
 
 export default function RequestPage() {
   return (
-    <main className="mx-auto w-full max-w-4xl space-y-8 px-6 py-10">
+    <main className="mx-auto w-full max-w-4xl space-y-12 px-6 py-16">
       <section>
-        <p className="text-sm font-bold uppercase tracking-widest text-zinc-500">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-espresso-faint">
           Step 2
         </p>
-        <h1 className="text-3xl font-black">Parse a supply request</h1>
-        <p className="mt-2 text-zinc-600">
+        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-espresso sm:text-5xl">
+          Parse a supply request
+        </h1>
+        <p className="mt-4 max-w-2xl text-espresso-soft">
           Claude converts free text into validated items, quantities, currency,
           and a budget.
         </p>

@@ -47,10 +47,18 @@ export default async function PricePage({
 
   if (!request) {
     return (
-      <main className="mx-auto w-full max-w-4xl space-y-4 px-6 py-10">
-        <h1 className="text-3xl font-black">Price a request</h1>
-        <p>No parsed request exists yet.</p>
-        <Link href="/request" className="font-semibold underline">
+      <main className="mx-auto w-full max-w-4xl space-y-6 px-6 py-16">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-espresso-faint">
+          Step 3
+        </p>
+        <h1 className="font-display text-4xl font-semibold tracking-tight text-espresso sm:text-5xl">
+          Price a request
+        </h1>
+        <p className="text-espresso-soft">No parsed request exists yet.</p>
+        <Link
+          href="/request"
+          className="inline-block rounded-full bg-terracotta px-6 py-3 text-sm font-medium text-bone hover:bg-terracotta-deep"
+        >
           Create a request
         </Link>
       </main>
@@ -62,9 +70,13 @@ export default async function PricePage({
     parsed = parsedRequestSchema.parse(JSON.parse(request.parsedJson));
   } catch {
     return (
-      <main className="mx-auto w-full max-w-4xl px-6 py-10">
-        <h1 className="text-3xl font-black">Invalid stored request</h1>
-        <p className="mt-2">Request #{request.id} no longer matches the schema.</p>
+      <main className="mx-auto w-full max-w-4xl px-6 py-16">
+        <h1 className="font-display text-4xl font-semibold tracking-tight text-espresso">
+          Invalid stored request
+        </h1>
+        <p className="mt-4 text-espresso-soft">
+          Request #{request.id} no longer matches the schema.
+        </p>
       </main>
     );
   }
@@ -98,20 +110,22 @@ export default async function PricePage({
   });
 
   return (
-    <main className="mx-auto w-full max-w-6xl space-y-8 px-6 py-10">
+    <main className="mx-auto w-full max-w-6xl space-y-14 px-6 py-16">
       <section>
-        <p className="text-sm font-bold uppercase tracking-widest text-zinc-500">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-espresso-faint">
           Step 3
         </p>
-        <h1 className="text-3xl font-black">Price request #{request.id}</h1>
-        <p className="mt-2 text-zinc-600">
+        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-espresso sm:text-5xl">
+          Price request #{request.id}
+        </h1>
+        <p className="mt-4 max-w-2xl text-espresso-soft">
           One read-only quote per supplier. Dispatch remains locked until a
           separate approval records the exact basket and caps.
         </p>
       </section>
       <form
         method="get"
-        className="grid gap-4 rounded-lg border bg-white p-5 sm:grid-cols-[1fr_1fr_auto]"
+        className="grid items-end gap-6 rounded-2xl border border-line bg-cream p-8 sm:grid-cols-[1fr_1fr_auto]"
       >
         <input type="hidden" name="requestId" value={request.id} />
         <input type="hidden" name="addressModeSet" value="1" />
@@ -125,7 +139,7 @@ export default async function PricePage({
               value={quote.merchantId}
             />
           ))}
-        <label className="text-sm font-semibold">
+        <label className="text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint">
           Maximum total (CAD dollars)
           <input
             type="number"
@@ -133,10 +147,10 @@ export default async function PricePage({
             min="0"
             step="0.01"
             defaultValue={(caps.maxTotalMinor / 100).toFixed(2)}
-            className="mt-1 block w-full rounded border border-zinc-300 px-3 py-2 font-normal"
+            className="mt-2 block w-full rounded-xl border border-line-strong bg-bone px-4 py-3 text-base font-normal tracking-normal text-espresso tabular-nums normal-case focus:border-terracotta focus:outline-none focus:ring-4 focus:ring-terracotta/10"
           />
         </label>
-        <label className="text-sm font-semibold">
+        <label className="text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint">
           Maximum shipping (CAD dollars)
           <input
             type="number"
@@ -144,16 +158,16 @@ export default async function PricePage({
             min="0"
             step="0.01"
             defaultValue={(caps.maxShippingMinor / 100).toFixed(2)}
-            className="mt-1 block w-full rounded border border-zinc-300 px-3 py-2 font-normal"
+            className="mt-2 block w-full rounded-xl border border-line-strong bg-bone px-4 py-3 text-base font-normal tracking-normal text-espresso tabular-nums normal-case focus:border-terracotta focus:outline-none focus:ring-4 focus:ring-terracotta/10"
           />
         </label>
         <button
           type="submit"
-          className="self-end rounded bg-zinc-950 px-4 py-2 font-semibold text-white"
+          className="rounded-full border border-espresso px-7 py-3 text-sm font-medium text-espresso hover:bg-espresso hover:text-bone"
         >
           Requote
         </button>
-        <p className="text-xs text-zinc-500 sm:col-span-3">
+        <p className="text-xs text-espresso-faint sm:col-span-3">
           These exact caps are sent to every quote. Lower shipping to force a
           safe cap refusal; no charge is possible.
         </p>

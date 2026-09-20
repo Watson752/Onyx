@@ -41,13 +41,15 @@ export default async function DispatchPage({
   }));
 
   return (
-    <main className="mx-auto w-full max-w-4xl space-y-8 px-6 py-10">
+    <main className="mx-auto w-full max-w-4xl space-y-14 px-6 py-16">
       <section>
-        <p className="text-sm font-bold uppercase tracking-widest text-zinc-500">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-espresso-faint">
           Independent supplier dispatch
         </p>
-        <h1 className="text-3xl font-black">Approved orders</h1>
-        <p className="mt-2 text-zinc-600">
+        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-espresso sm:text-5xl">
+          Approved orders
+        </h1>
+        <p className="mt-4 max-w-2xl text-espresso-soft">
           Each supplier is claimed and tracked independently. A refusal or
           failure here does not stop any other supplier.
         </p>

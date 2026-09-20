@@ -1,23 +1,178 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ---------------------------------------------------------------
+   Onyx — warm editorial palette (bone, beige, espresso, terracotta,
+   sage). Refusals and skips are a calm amber; only genuine failures
+   use the muted brick red.
+   --------------------------------------------------------------- */
+@theme {
+  /* surfaces */
+  --color-bone: #fbf8f3;
+  --color-cream: #fffdfa;
+  --color-beige: #f0e8db;
+  --color-beige-deep: #e6dac7;
+
+  /* ink */
+  --color-espresso: #2b221c;
+  --color-espresso-soft: #5c4e43;
+  --color-espresso-faint: #8d7e70;
+
+  /* lines */
+  --color-line: #e5dbcb;
+  --color-line-strong: #d4c6b1;
+
+  /* primary action */
+  --color-terracotta: #b05f3c;
+  --color-terracotta-deep: #944e2f;
+  --color-terracotta-soft: #f6e5da;
+
+  /* ready / success / cheapest */
+  --color-sage: #6f8466;
+  --color-sage-deep: #4f6347;
+  --color-sage-soft: #e6ecde;
+
+  /* refusals, skips, cannot-deliver — calm, never alarming */
+  --color-amberwarm: #a3762f;
+  --color-amberwarm-deep: #7c5920;
+  --color-amberwarm-soft: #f7edd9;
+
+  /* genuine failures only */
+  --color-brick: #9b4034;
+  --color-brick-soft: #f4e0db;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--color-bone);
+  --color-foreground: var(--color-espresso);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--color-bone);
+    color: var(--color-espresso);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.7;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  ::selection {
+    background: var(--color-terracotta-soft);
+    color: var(--color-terracotta-deep);
+  }
+
+  a,
+  button,
+  input,
+  textarea {
+    transition:
+      color 150ms ease,
+      background-color 150ms ease,
+      border-color 150ms ease;
+  }
+
+  /* Numeric columns line up in every table on the site. */
+  td,
+  th {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
-button,
-input,
-textarea {
-  font: inherit;
+/* ---------------------------------------------------------------
+   Night mode.
+
+   Every utility Tailwind generates from the @theme block above
+   resolves to var(--color-*), so re-pointing those variables here
+   re-themes the entire site without touching a single className.
+
+   Note the inversion of the *-soft / *-deep pairs: in day mode a
+   "-soft" tint is a pale background carrying "-deep" text, so at
+   night "-soft" becomes the dark tint and "-deep" becomes the light
+   text that sits on it. The same pairs keep working either way.
+
+   No [data-theme] attribute means "follow the OS"; the toggle in the
+   nav writes light/dark onto <html> to override it.
+   --------------------------------------------------------------- */
+@layer theme {
+  :root {
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+
+      --color-bone: #17120f;
+      --color-cream: #1f1915;
+      --color-beige: #2a231d;
+      --color-beige-deep: #362d26;
+
+      --color-espresso: #f4ece2;
+      --color-espresso-soft: #c3b4a5;
+      --color-espresso-faint: #8d7e71;
+
+      --color-line: #332b24;
+      --color-line-strong: #4a3f36;
+
+      --color-terracotta: #ce7f58;
+      --color-terracotta-deep: #e09470;
+      --color-terracotta-soft: #3b241a;
+
+      --color-sage: #8fa883;
+      --color-sage-deep: #afc5a3;
+      --color-sage-soft: #242d1f;
+
+      --color-amberwarm: #cba25d;
+      --color-amberwarm-deep: #e3c081;
+      --color-amberwarm-soft: #342a1a;
+
+      --color-brick: #cf7a69;
+      --color-brick-soft: #3c221d;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --color-bone: #17120f;
+    --color-cream: #1f1915;
+    --color-beige: #2a231d;
+    --color-beige-deep: #362d26;
+
+    --color-espresso: #f4ece2;
+    --color-espresso-soft: #c3b4a5;
+    --color-espresso-faint: #8d7e71;
+
+    --color-line: #332b24;
+    --color-line-strong: #4a3f36;
+
+    --color-terracotta: #ce7f58;
+    --color-terracotta-deep: #e09470;
+    --color-terracotta-soft: #3b241a;
+
+    --color-sage: #8fa883;
+    --color-sage-deep: #afc5a3;
+    --color-sage-soft: #242d1f;
+
+    --color-amberwarm: #cba25d;
+    --color-amberwarm-deep: #e3c081;
+    --color-amberwarm-soft: #342a1a;
+
+    --color-brick: #cf7a69;
+    --color-brick-soft: #3c221d;
+  }
 }

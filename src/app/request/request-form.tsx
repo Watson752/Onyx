@@ -17,12 +17,15 @@ export function RequestForm() {
   const [state, action] = useActionState(parseRequest, initialRequestState);
 
   return (
-    <div className="space-y-6">
-      <form action={action} className="space-y-4 rounded-lg border bg-white p-5">
+    <div className="space-y-10">
+      <form
+        action={action}
+        className="space-y-6 rounded-2xl border border-line bg-cream p-8"
+      >
         <div>
           <label
             htmlFor="rawText"
-            className="mb-1 block text-sm font-semibold"
+            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint"
           >
             What does the cafe need?
           </label>
@@ -32,55 +35,72 @@ export function RequestForm() {
             required
             rows={8}
             placeholder="We need 4 bags of medium-roast coffee beans and 500 paper cups. Budget CAD $400."
-            className="w-full rounded border border-zinc-300 px-3 py-2"
+            className="w-full rounded-xl border border-line-strong bg-bone px-4 py-3 text-espresso placeholder:text-espresso-faint focus:border-terracotta focus:outline-none focus:ring-4 focus:ring-terracotta/10"
           />
         </div>
         <SubmitButton idle="Parse with Claude" pending="Parsing…" />
         {state.message ? (
-          <p className={state.ok ? "text-sm text-green-700" : "text-sm text-red-700"}>
+          <p
+            className={
+              state.ok
+                ? "text-sm text-sage-deep"
+                : "text-sm text-brick"
+            }
+          >
             {state.message}
           </p>
         ) : null}
       </form>
 
       {state.parsed && state.requestId ? (
-        <section className="space-y-4 rounded-lg border bg-white p-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-xl font-bold">Parsed request</h2>
+        <section className="space-y-6 rounded-2xl border border-line bg-cream p-8">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <h2 className="font-display text-2xl font-semibold tracking-tight text-espresso">
+              Parsed request
+            </h2>
             <Link
               href={`/price?requestId=${state.requestId}`}
-              className="rounded bg-emerald-700 px-4 py-2 text-sm font-semibold text-white"
+              className="rounded-full bg-terracotta px-6 py-3 text-sm font-medium text-bone hover:bg-terracotta-deep"
             >
               Price this request
             </Link>
           </div>
-          <ul className="list-disc space-y-1 pl-5">
+          <ul className="space-y-2 border-t border-line pt-5">
             {state.parsed.items.map((item, index) => (
-              <li key={`${item.query}-${index}`}>
-                {item.quantity} × {item.query}
+              <li
+                key={`${item.query}-${index}`}
+                className="flex items-baseline gap-3 text-espresso"
+              >
+                <span className="tabular-nums font-medium text-terracotta">
+                  {item.quantity} ×
+                </span>
+                <span>{item.query}</span>
               </li>
             ))}
           </ul>
-          <dl className="grid gap-2 text-sm sm:grid-cols-2">
+          <dl className="grid gap-6 border-t border-line pt-5 text-sm sm:grid-cols-2">
             <div>
-              <dt className="font-semibold">Budget</dt>
-              <dd>
-                {formatMoney(
-                  state.parsed.budget_minor,
-                  state.parsed.currency,
-                )}
+              <dt className="text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint">
+                Budget
+              </dt>
+              <dd className="mt-1 text-lg tabular-nums text-espresso">
+                {formatMoney(state.parsed.budget_minor, state.parsed.currency)}
               </dd>
             </div>
             <div>
-              <dt className="font-semibold">Notes</dt>
-              <dd>{state.parsed.notes || "None"}</dd>
+              <dt className="text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint">
+                Notes
+              </dt>
+              <dd className="mt-1 text-espresso-soft">
+                {state.parsed.notes || "None"}
+              </dd>
             </div>
           </dl>
-          <details>
-            <summary className="cursor-pointer text-sm font-semibold">
+          <details className="border-t border-line pt-5">
+            <summary className="cursor-pointer text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint hover:text-terracotta">
               Strict JSON
             </summary>
-            <pre className="mt-2 overflow-auto rounded bg-zinc-950 p-3 text-xs text-zinc-100">
+            <pre className="mt-4 overflow-auto rounded-xl bg-espresso p-5 text-xs leading-relaxed text-bone">
               {JSON.stringify(state.parsed, null, 2)}
             </pre>
           </details>

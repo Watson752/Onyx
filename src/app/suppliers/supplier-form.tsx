@@ -15,9 +15,15 @@ export function SupplierForm() {
   const [state, action] = useActionState(addSupplier, initialSupplierState);
 
   return (
-    <form action={action} className="space-y-4 rounded-lg border bg-white p-5">
+    <form
+      action={action}
+      className="space-y-6 rounded-2xl border border-line bg-cream p-8"
+    >
       <div>
-        <label htmlFor="url" className="mb-1 block text-sm font-semibold">
+        <label
+          htmlFor="url"
+          className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint"
+        >
           Supplier store URL
         </label>
         <input
@@ -26,10 +32,10 @@ export function SupplierForm() {
           type="url"
           required
           placeholder="https://eightouncecoffee.ca"
-          className="w-full rounded border border-zinc-300 px-3 py-2"
+          className="w-full rounded-xl border border-line-strong bg-bone px-4 py-3 text-espresso placeholder:text-espresso-faint focus:border-terracotta focus:outline-none focus:ring-4 focus:ring-terracotta/10"
         />
       </div>
-      <p className="text-sm text-amber-700">
+      <p className="rounded-xl bg-amberwarm-soft px-5 py-4 text-sm text-amberwarm-deep">
         Explore is read-only, but it drives the live checkout and can take
         about two minutes. The table below keeps polling for the result even
         if you navigate away and come back.
@@ -38,7 +44,9 @@ export function SupplierForm() {
       {state.message ? (
         <p
           role="status"
-          className={state.ok ? "text-sm text-green-700" : "text-sm text-red-700"}
+          className={
+            state.ok ? "text-sm text-sage-deep" : "text-sm text-brick"
+          }
         >
           {state.message}
         </p>
