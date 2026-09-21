@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
-import { Nav } from "@/components/nav";
 import { THEME_STORAGE_KEY } from "@/lib/theme";
 import "./globals.css";
 
@@ -37,7 +36,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col bg-bone text-espresso">
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        <Nav />
         {children}
       </body>
     </html>

@@ -14,6 +14,7 @@ import type {
 export type QuoteOutcome =
   | "ready"
   | "unfulfillable"
+  | "out_of_stock"
   | "cap_breach"
   | "not_ready"
   | "error";
@@ -82,6 +83,15 @@ function selectedShipping(quote: AgnicQuote, subtotal: number | null) {
 }
 
 function notReadyReason(quote: AgnicQuote) {
+  const unavailable = quote.lines?.filter((line) => line.available === false);
+  if (unavailable && unavailable.length > 0) {
+    const names = unavailable
+      .map((line) => line.name)
+      .filter((name): name is string => Boolean(name));
+    return names.length > 0
+      ? `Live checkout says out of stock: ${names.join(", ")}.`
+      : "Live checkout says at least one item is out of stock.";
+  }
   if (typeof quote.state === "string" && quote.state !== "ready") {
     return `API state is ${quote.state}, not ready.`;
   }
@@ -352,21 +362,29 @@ export async function priceRequest(
       const readinessNote = pickupWithShipTo
         ? "Pickup cannot be combined with ship_to. Omit ship_to and quote again."
         : notReadyReason(quote);
+      const outOfStock =
+        quote.lines?.some((line) => line.available === false) ?? false;
       quotes.push({
         merchantId: bundle.merchantId,
         merchantName: bundle.merchantName,
         items: displayItems(bundle),
         quote,
-        outcome: readinessNote ? "not_ready" : "ready",
+        outcome: outOfStock
+          ? "out_of_stock"
+          : readinessNote
+            ? "not_ready"
+            : "ready",
         ready: readinessNote === null,
         note:
           readinessNote ??
           (quote.amount_is_final
             ? "Ready: authoritative tax-inclusive amount."
             : "Ready: amount is a ceiling; tax may be added at checkout."),
-        subtotalMinor: subtotal,
-        shippingMinor: selectedShipping(quote, subtotal),
-        totalMinor: total,
+        subtotalMinor: outOfStock ? null : subtotal,
+        shippingMinor: outOfStock
+          ? null
+          : selectedShipping(quote, subtotal),
+        totalMinor: outOfStock ? null : total,
         amountIsFinal: quote.amount_is_final === true,
         currency: quote.currency ?? parsed.currency,
         addressMode,

@@ -140,7 +140,7 @@ function DispatchCard({ initial }: { initial: DispatchApproval }) {
 
   return (
     <article
-      className={`rounded-2xl border p-8 ${
+      className={`rounded-2xl border p-6 sm:p-8 ${
         isRefusal
           ? "border-amberwarm/40 bg-amberwarm-soft"
           : isUncertain
@@ -152,7 +152,7 @@ function DispatchCard({ initial }: { initial: DispatchApproval }) {
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="font-display text-2xl font-semibold tracking-tight text-espresso">
+          <h2 className="font-display text-xl font-semibold tracking-tight text-espresso sm:text-2xl">
             {approval.supplierName}
           </h2>
           <p className="mt-1 text-sm tabular-nums text-espresso-soft">
@@ -177,12 +177,12 @@ function DispatchCard({ initial }: { initial: DispatchApproval }) {
       </div>
 
       {approval.agnicOrderId ? (
-        <p className="mt-5 font-mono text-xs text-espresso-faint">
+        <p className="mt-5 font-mono text-xs break-all text-espresso-faint">
           Order: {approval.agnicOrderId}
         </p>
       ) : null}
       {approval.amountChargedMinor !== null ? (
-        <p className="mt-5 font-display text-3xl font-semibold tabular-nums tracking-tight text-espresso">
+        <p className="mt-5 font-display text-2xl font-semibold tabular-nums tracking-tight text-espresso sm:text-3xl">
           Charged{" "}
           {formatMoney(approval.amountChargedMinor, approval.currency)}
         </p>

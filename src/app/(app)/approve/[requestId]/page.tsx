@@ -60,11 +60,11 @@ export default async function ApprovePage({
     });
   } catch (error) {
     return (
-      <main className="mx-auto w-full max-w-4xl space-y-6 px-6 py-16">
+      <main className="mx-auto w-full max-w-4xl space-y-6 px-5 py-10 sm:px-6 sm:py-16">
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-espresso-faint">
           Approval preview refused safely
         </p>
-        <h1 className="font-display text-4xl font-semibold tracking-tight text-espresso sm:text-5xl">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-espresso sm:text-4xl md:text-5xl">
           A fresh quote is required
         </h1>
         <p className="rounded-2xl border border-amberwarm/30 bg-amberwarm-soft p-6 text-amberwarm-deep">
@@ -89,12 +89,12 @@ export default async function ApprovePage({
   const confirm = confirmApproval.bind(null, batch.id);
 
   return (
-    <main className="mx-auto w-full max-w-5xl space-y-14 px-6 py-16">
+    <main className="mx-auto w-full max-w-5xl space-y-10 px-5 py-10 sm:space-y-14 sm:px-6 sm:py-16">
       <section>
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-espresso-faint">
           Approval required
         </p>
-        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-espresso sm:text-5xl">
+        <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-espresso sm:text-4xl md:text-5xl">
           Approve request #{request.id}
         </h1>
         <p className="mt-4 max-w-2xl text-espresso-soft">
@@ -109,12 +109,12 @@ export default async function ApprovePage({
             key={cart.merchantId}
             className="overflow-hidden rounded-2xl border border-line-strong bg-cream"
           >
-            <header className="flex flex-wrap items-start justify-between gap-4 border-b border-line bg-beige px-8 py-6">
+            <header className="flex flex-wrap items-start justify-between gap-4 border-b border-line bg-beige px-6 py-5 sm:px-8 sm:py-6">
               <div>
-                <h2 className="font-display text-2xl font-semibold tracking-tight text-espresso">
+                <h2 className="font-display text-xl font-semibold tracking-tight text-espresso sm:text-2xl">
                   {cart.supplierName}
                 </h2>
-                <p className="mt-1 font-mono text-xs text-espresso-faint">
+                <p className="mt-1 font-mono text-xs break-all text-espresso-faint">
                   {cart.merchantId}
                 </p>
               </div>
@@ -133,7 +133,7 @@ export default async function ApprovePage({
               {cart.displayItems.map((item) => (
                 <div
                   key={`${item.sku}-${item.query}`}
-                  className="grid gap-1 px-8 py-6 sm:grid-cols-[1fr_auto] sm:items-baseline"
+                  className="grid gap-1 px-6 py-5 sm:grid-cols-[1fr_auto] sm:items-baseline sm:px-8 sm:py-6"
                 >
                   <div>
                     <p className="font-medium text-espresso">{item.title}</p>
@@ -148,12 +148,12 @@ export default async function ApprovePage({
               ))}
             </div>
 
-            <div className="grid gap-8 border-t border-line bg-bone px-8 py-7 sm:grid-cols-2">
+            <div className="grid gap-8 border-t border-line bg-bone px-6 py-6 sm:grid-cols-2 sm:px-8 sm:py-7">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint">
                   {cart.amountIsFinal ? "Delivered total" : "Checkout ceiling"}
                 </p>
-                <p className="mt-2 font-display text-4xl font-semibold tabular-nums tracking-tight text-espresso">
+                <p className="mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight text-espresso sm:text-4xl">
                   <Money
                     amountMinor={cart.amountMinor}
                     currency={cart.currency}
@@ -194,7 +194,7 @@ export default async function ApprovePage({
                   Address mode
                 </p>
                 {cart.addressMode === "ship_to" && cart.shipTo ? (
-                  <p className="mt-2 text-espresso-soft">
+                  <p className="mt-2 break-words text-espresso-soft">
                     ship_to: {cart.shipTo.name}, {cart.shipTo.street_address},{" "}
                     {cart.shipTo.address_locality}, {cart.shipTo.address_region}{" "}
                     {cart.shipTo.postal_code}, {cart.shipTo.address_country}
@@ -226,7 +226,7 @@ export default async function ApprovePage({
 
       <form
         action={confirm}
-        className="space-y-6 rounded-2xl border border-line bg-cream p-8"
+        className="space-y-6 rounded-2xl border border-line bg-cream p-6 sm:p-8"
       >
         <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint">
           Your confirmation

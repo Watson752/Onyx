@@ -73,7 +73,7 @@ function SupplierTableRow({ initial }: { initial: SupplierRow }) {
 
   return (
     <tr className="border-t border-line align-top">
-      <td className="px-6 py-5">
+      <td className="px-5 py-4 sm:px-6 sm:py-5">
         <a
           href={row.url}
           target="_blank"
@@ -82,11 +82,11 @@ function SupplierTableRow({ initial }: { initial: SupplierRow }) {
         >
           {row.name}
         </a>
-        <div className="mt-1 font-mono text-xs text-espresso-faint">
+        <div className="mt-1 font-mono text-xs break-all text-espresso-faint">
           {row.agnicMerchantId ?? "—"}
         </div>
       </td>
-      <td className="px-6 py-5">
+      <td className="px-5 py-4 sm:px-6 sm:py-5">
         {isPolling ? (
           <span className="inline-flex items-center gap-2 rounded-full bg-amberwarm-soft px-3 py-1 text-xs font-medium text-amberwarm-deep">
             <span className="size-3 animate-spin rounded-full border-2 border-amberwarm border-t-transparent" />
@@ -102,11 +102,11 @@ function SupplierTableRow({ initial }: { initial: SupplierRow }) {
           </span>
         )}
       </td>
-      <td className="px-6 py-5 text-espresso-soft">{row.rail ?? "unknown"}</td>
-      <td className="px-6 py-5 text-espresso-soft">
+      <td className="px-5 py-4 text-espresso-soft sm:px-6 sm:py-5">{row.rail ?? "unknown"}</td>
+      <td className="px-5 py-4 text-espresso-soft sm:px-6 sm:py-5">
         {row.currency ?? "unknown"}
       </td>
-      <td className="px-6 py-5 text-right tabular-nums text-espresso-soft">
+      <td className="px-5 py-4 text-right tabular-nums text-espresso-soft sm:px-6 sm:py-5">
         {row.catalogItemCount} items
       </td>
     </tr>
@@ -116,14 +116,14 @@ function SupplierTableRow({ initial }: { initial: SupplierRow }) {
 export function SupplierTable({ suppliers }: { suppliers: SupplierRow[] }) {
   return (
     <div className="overflow-x-auto rounded-2xl border border-line bg-cream">
-      <table className="w-full text-left text-sm">
+      <table className="w-full min-w-[40rem] text-left text-sm">
         <thead className="bg-beige">
           <tr className="text-[11px] uppercase tracking-[0.16em] text-espresso-soft">
-            <th className="px-6 py-4 font-semibold">Supplier</th>
-            <th className="px-6 py-4 font-semibold">Status</th>
-            <th className="px-6 py-4 font-semibold">Rail</th>
-            <th className="px-6 py-4 font-semibold">Currency</th>
-            <th className="px-6 py-4 text-right font-semibold">Catalog</th>
+            <th className="px-5 py-4 font-semibold sm:px-6">Supplier</th>
+            <th className="px-5 py-4 font-semibold sm:px-6">Status</th>
+            <th className="px-5 py-4 font-semibold sm:px-6">Rail</th>
+            <th className="px-5 py-4 font-semibold sm:px-6">Currency</th>
+            <th className="px-5 py-4 text-right font-semibold sm:px-6">Catalog</th>
           </tr>
         </thead>
         <tbody>

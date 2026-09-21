@@ -6,12 +6,12 @@ export const maxDuration = 60;
 
 export default function RequestPage() {
   return (
-    <main className="mx-auto w-full max-w-4xl space-y-12 px-6 py-16">
+    <main className="mx-auto w-full max-w-4xl space-y-10 px-5 py-10 sm:space-y-12 sm:px-6 sm:py-16">
       <section>
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-espresso-faint">
           Step 2
         </p>
-        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-espresso sm:text-5xl">
+        <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-espresso sm:text-4xl md:text-5xl">
           Parse a supply request
         </h1>
         <p className="mt-4 max-w-2xl text-espresso-soft">

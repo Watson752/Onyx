@@ -29,7 +29,7 @@ export function PricingView({
     <div className="space-y-14">
       {/* Hero: the chosen basket. */}
       <section
-        className={`rounded-3xl border p-10 sm:p-12 ${
+        className={`rounded-3xl border p-6 sm:p-10 md:p-12 ${
           result.selectedTotalMinor === null
             ? "border-amberwarm/30 bg-amberwarm-soft"
             : "border-sage/30 bg-sage-soft"
@@ -38,7 +38,7 @@ export function PricingView({
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-espresso-faint">
           Chosen basket
         </p>
-        <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-espresso sm:text-4xl">
+        <h2 className="mt-3 font-display text-2xl font-semibold tracking-tight text-espresso sm:text-3xl md:text-4xl">
           {result.selectionStrategy === null
             ? "No complete combination"
             : result.selectionStrategy === "greedy-fallback"
@@ -52,7 +52,7 @@ export function PricingView({
           </p>
         ) : (
           <>
-            <p className="mt-8 font-display text-6xl font-semibold tabular-nums tracking-tight text-espresso sm:text-7xl">
+            <p className="mt-8 font-display text-4xl font-semibold tabular-nums tracking-tight text-espresso sm:text-6xl md:text-7xl">
               <Money
                 amountMinor={result.selectedTotalMinor}
                 currency={parsed.currency}
@@ -78,7 +78,7 @@ export function PricingView({
             ) : null}
             <Link
               href={`/approve/${requestId}?${approvalParams.toString()}`}
-              className="mt-9 inline-block rounded-full bg-terracotta px-8 py-4 text-sm font-medium tracking-wide text-bone hover:bg-terracotta-deep"
+              className="mt-9 block w-full rounded-full bg-terracotta px-8 py-4 text-center text-sm font-medium tracking-wide text-bone hover:bg-terracotta-deep sm:inline-block sm:w-auto"
             >
               Review exact approval
             </Link>
@@ -92,7 +92,7 @@ export function PricingView({
       </section>
 
       {result.missingItems.length > 0 ? (
-        <section className="rounded-2xl border border-brick/25 bg-brick-soft p-8">
+        <section className="rounded-2xl border border-brick/25 bg-brick-soft p-6 sm:p-8">
           <h2 className="font-display text-xl font-semibold text-espresso">
             No supplier candidate found
           </h2>
@@ -105,14 +105,14 @@ export function PricingView({
       ) : null}
 
       {result.onboardingRequired.length > 0 ? (
-        <details className="rounded-2xl border border-line bg-cream p-8">
+        <details className="rounded-2xl border border-line bg-cream p-6 sm:p-8">
           <summary className="cursor-pointer font-display text-xl font-semibold text-espresso hover:text-terracotta">
             Network matches requiring Explore (
             {result.onboardingRequired.length})
           </summary>
           <ul className="mt-5 space-y-3 border-t border-line pt-5 text-sm text-espresso-soft">
             {result.onboardingRequired.map((item, index) => (
-              <li key={`${item.merchantName}-${index}`}>
+              <li key={`${item.merchantName}-${index}`} className="break-words">
                 <strong className="font-medium text-espresso">
                   {parsed.items[item.requestItemIndex].query}:
                 </strong>{" "}
@@ -137,11 +137,11 @@ export function PricingView({
           name="maxShippingDollars"
           value={(result.caps.maxShippingMinor / 100).toFixed(2)}
         />
-        <h2 className="font-display text-3xl font-semibold tracking-tight text-espresso">
+        <h2 className="font-display text-2xl font-semibold tracking-tight text-espresso sm:text-3xl">
           Supplier quotes
         </h2>
         {result.quotes.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-line-strong bg-cream p-10 text-center text-espresso-faint">
+          <p className="rounded-2xl border border-dashed border-line-strong bg-cream p-8 text-center sm:p-10 text-espresso-faint">
             There were no onboarded candidate suppliers to quote.
           </p>
         ) : (
@@ -158,19 +158,20 @@ export function PricingView({
                 className={`overflow-hidden rounded-2xl border bg-cream ${
                   isSelected
                     ? "border-sage ring-1 ring-sage/40"
-                    : supplierQuote.outcome === "cap_breach"
+                    : supplierQuote.outcome === "cap_breach" ||
+                        supplierQuote.outcome === "out_of_stock"
                       ? "border-amberwarm/40"
                       : supplierQuote.outcome === "unfulfillable"
                         ? "border-line-strong"
-                    : "border-line"
+                        : "border-line"
                 }`}
               >
-                <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-beige px-8 py-6">
+                <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-beige px-6 py-5 sm:px-8 sm:py-6">
                   <div>
                     <h3 className="font-display text-xl font-semibold tracking-tight text-espresso">
                       {supplierQuote.merchantName}
                     </h3>
-                    <p className="mt-1 font-mono text-xs text-espresso-faint">
+                    <p className="mt-1 font-mono text-xs break-all text-espresso-faint">
                       {supplierQuote.merchantId}
                     </p>
                   </div>
@@ -193,14 +194,16 @@ export function PricingView({
                         ? "Ready"
                         : supplierQuote.outcome === "cap_breach"
                           ? "Cap refusal"
-                          : supplierQuote.outcome === "unfulfillable"
-                            ? "Cannot deliver"
-                            : "Not ready"}
+                          : supplierQuote.outcome === "out_of_stock"
+                            ? "Out of stock"
+                            : supplierQuote.outcome === "unfulfillable"
+                              ? "Cannot deliver"
+                              : "Not ready"}
                     </span>
                   </div>
                 </header>
 
-                <div className="space-y-4 border-b border-line px-8 py-6">
+                <div className="space-y-4 border-b border-line px-6 py-5 sm:px-8 sm:py-6">
                   <p className="text-sm text-espresso-soft">
                     <strong className="font-medium text-espresso">
                       Address used:
@@ -248,17 +251,17 @@ export function PricingView({
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
+                  <table className="w-full min-w-[34rem] text-left text-sm">
                     <thead>
                       <tr className="border-b border-line text-[11px] uppercase tracking-[0.16em] text-espresso-faint">
-                        <th className="px-8 py-4 font-semibold">Requested</th>
-                        <th className="px-8 py-4 font-semibold">
+                        <th className="px-5 py-4 font-semibold sm:px-8">Requested</th>
+                        <th className="px-5 py-4 font-semibold sm:px-8">
                           Matched item
                         </th>
-                        <th className="px-8 py-4 text-right font-semibold">
+                        <th className="px-5 py-4 text-right font-semibold sm:px-8">
                           Qty
                         </th>
-                        <th className="px-8 py-4 text-right font-semibold">
+                        <th className="px-5 py-4 text-right font-semibold sm:px-8">
                           Browse price
                         </th>
                       </tr>
@@ -269,16 +272,16 @@ export function PricingView({
                           key={`${item.requestItemIndex}-${item.sku}`}
                           className="border-b border-line"
                         >
-                          <td className="px-8 py-5 text-espresso-soft">
+                          <td className="px-5 py-4 text-espresso-soft sm:px-8 sm:py-5">
                             {item.query}
                           </td>
-                          <td className="px-8 py-5 text-espresso">
+                          <td className="px-5 py-4 text-espresso sm:px-8 sm:py-5">
                             {item.title}
                           </td>
-                          <td className="px-8 py-5 text-right tabular-nums text-espresso-soft">
+                          <td className="px-5 py-4 text-right tabular-nums text-espresso-soft sm:px-8 sm:py-5">
                             {item.quantity}
                           </td>
-                          <td className="px-8 py-5 text-right tabular-nums text-espresso">
+                          <td className="px-5 py-4 text-right tabular-nums text-espresso sm:px-8 sm:py-5">
                             <Money
                               amountMinor={item.browsePriceMinor}
                               currency={supplierQuote.currency}
@@ -291,11 +294,11 @@ export function PricingView({
                       <tr>
                         <td
                           colSpan={3}
-                          className="px-8 pt-5 pb-2 text-right text-espresso-soft"
+                          className="px-5 pt-5 pb-2 text-right text-espresso-soft sm:px-8"
                         >
                           Subtotal
                         </td>
-                        <td className="px-8 pt-5 pb-2 text-right tabular-nums">
+                        <td className="px-5 pt-5 pb-2 text-right tabular-nums sm:px-8">
                           <Money
                             amountMinor={supplierQuote.subtotalMinor}
                             currency={supplierQuote.currency}
@@ -305,11 +308,11 @@ export function PricingView({
                       <tr>
                         <td
                           colSpan={3}
-                          className="px-8 py-2 text-right text-espresso-soft"
+                          className="px-5 py-2 text-right text-espresso-soft sm:px-8"
                         >
                           Shipping
                         </td>
-                        <td className="px-8 py-2 text-right tabular-nums">
+                        <td className="px-5 py-2 text-right tabular-nums sm:px-8">
                           <Money
                             amountMinor={supplierQuote.shippingMinor}
                             currency={supplierQuote.currency}
@@ -319,13 +322,13 @@ export function PricingView({
                       <tr>
                         <td
                           colSpan={3}
-                          className="px-8 pt-2 pb-6 text-right text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint"
+                          className="px-5 pt-2 pb-6 text-right text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint sm:px-8"
                         >
                           {supplierQuote.amountIsFinal
                             ? "Tax-inclusive total"
                             : "Charge ceiling"}
                         </td>
-                        <td className="px-8 pt-2 pb-6 text-right font-display text-2xl font-semibold tabular-nums">
+                        <td className="px-5 pt-2 pb-6 text-right font-display text-2xl font-semibold tabular-nums sm:px-8">
                           <Money
                             amountMinor={supplierQuote.totalMinor}
                             currency={supplierQuote.currency}
@@ -335,7 +338,7 @@ export function PricingView({
                     </tfoot>
                   </table>
                 </div>
-                <div className="border-t border-line px-8 py-6">
+                <div className="border-t border-line px-6 py-5 sm:px-8 sm:py-6">
                   <h4 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint">
                     Available fulfilment options
                   </h4>
@@ -374,7 +377,7 @@ export function PricingView({
                   )}
                 </div>
                 {supplierQuote.capBreach ? (
-                  <p className="border-t border-line bg-amberwarm-soft px-8 py-5 text-sm text-amberwarm-deep">
+                  <p className="border-t border-line bg-amberwarm-soft px-6 py-5 text-sm text-amberwarm-deep sm:px-8">
                     {supplierQuote.merchantName} skipped:{" "}
                     {supplierQuote.capBreach.kind}{" "}
                     {formatMoney(
@@ -389,7 +392,7 @@ export function PricingView({
                     limit; nothing charged.
                   </p>
                 ) : (
-                  <p className="border-t border-line px-8 py-5 text-sm text-espresso-soft">
+                  <p className="border-t border-line px-6 py-5 text-sm text-espresso-soft sm:px-8">
                     {supplierQuote.note}
                   </p>
                 )}

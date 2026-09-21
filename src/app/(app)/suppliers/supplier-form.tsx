@@ -17,21 +17,22 @@ export function SupplierForm() {
   return (
     <form
       action={action}
-      className="space-y-6 rounded-2xl border border-line bg-cream p-8"
+      className="space-y-6 rounded-2xl border border-line bg-cream p-6 sm:p-8"
     >
       <div>
         <label
           htmlFor="url"
           className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint"
         >
-          Supplier store URL
+          Supplier domain or store URL
         </label>
         <input
           id="url"
           name="url"
-          type="url"
+          type="text"
+          inputMode="url"
           required
-          placeholder="https://eightouncecoffee.ca"
+          placeholder="monogramcoffee.com"
           className="w-full rounded-xl border border-line-strong bg-bone px-4 py-3 text-espresso placeholder:text-espresso-faint focus:border-terracotta focus:outline-none focus:ring-4 focus:ring-terracotta/10"
         />
       </div>

@@ -28,12 +28,12 @@ export default async function SuppliersPage() {
   }));
 
   return (
-    <main className="mx-auto w-full max-w-6xl space-y-14 px-6 py-16">
+    <main className="mx-auto w-full max-w-6xl space-y-10 px-5 py-10 sm:space-y-14 sm:px-6 sm:py-16">
       <section>
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-espresso-faint">
           Step 1
         </p>
-        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-espresso sm:text-5xl">
+        <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-espresso sm:text-4xl md:text-5xl">
           Supplier onboarding
         </h1>
         <p className="mt-4 max-w-2xl text-espresso-soft">
@@ -49,7 +49,7 @@ export default async function SuppliersPage() {
           Stored suppliers
         </h2>
         {suppliers.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-line-strong bg-cream p-10 text-center text-espresso-faint">
+          <p className="rounded-2xl border border-dashed border-line-strong bg-cream p-8 text-center sm:p-10 text-espresso-faint">
             No suppliers yet.
           </p>
         ) : (

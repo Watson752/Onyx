@@ -20,7 +20,7 @@ export function RequestForm() {
     <div className="space-y-10">
       <form
         action={action}
-        className="space-y-6 rounded-2xl border border-line bg-cream p-8"
+        className="space-y-6 rounded-2xl border border-line bg-cream p-6 sm:p-8"
       >
         <div>
           <label
@@ -53,7 +53,7 @@ export function RequestForm() {
       </form>
 
       {state.parsed && state.requestId ? (
-        <section className="space-y-6 rounded-2xl border border-line bg-cream p-8">
+        <section className="space-y-6 rounded-2xl border border-line bg-cream p-6 sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <h2 className="font-display text-2xl font-semibold tracking-tight text-espresso">
               Parsed request

@@ -44,7 +44,15 @@ export type AgnicQuote = {
   charge_estimate_minor?: number | null;
   charge_cap_minor?: number | null;
   currency?: string;
-  lines?: unknown[];
+  lines?: Array<{
+    sku?: string;
+    quantity?: number;
+    name?: string;
+    unit_price_minor?: number;
+    line_price_minor?: number;
+    available?: boolean;
+    [key: string]: unknown;
+  }>;
   unfulfillable?: { reason?: string };
   error?: string;
   error_description?: string;

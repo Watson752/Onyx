@@ -8,7 +8,7 @@ export default function PriceError({
   reset: () => void;
 }) {
   return (
-    <main className="mx-auto w-full max-w-4xl space-y-6 px-6 py-16">
+    <main className="mx-auto w-full max-w-4xl space-y-6 px-5 py-10 sm:px-6 sm:py-16">
       <h1 className="font-display text-4xl font-semibold tracking-tight text-espresso">
         Pricing failed
       </h1>

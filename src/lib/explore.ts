@@ -8,6 +8,7 @@ import {
   pollExploreOnce,
   startExplore,
 } from "./agnic";
+import { preflightSupplier } from "./preflight";
 import { prisma } from "./prisma";
 
 const EXPLORE_GOAL = "Buy supplies for a cafe, delivered in Ontario, Canada";
@@ -66,12 +67,41 @@ async function finishExplore(
 }
 
 /**
+ * One spelling per storefront: lowercase host, no default port, no trailing
+ * "/" beyond the root. Pair this with the redirect-resolved URL from
+ * preflight — on its own it would still treat www and bare hosts as distinct.
+ */
+export function canonicalizeSupplierUrl(rawUrl: string): string {
+  const parsed = new URL(rawUrl);
+  parsed.hash = "";
+  parsed.search = "";
+  parsed.hostname = parsed.hostname.toLowerCase();
+  parsed.pathname = parsed.pathname.replace(/\/+$/, "") || "/";
+  return parsed.toString();
+}
+
+/**
  * Kicks off explore and returns fast (a single POST). The multi-minute crawl
  * itself is never awaited here — the caller's page polls
  * `refreshSupplierExplore` from a separate short-lived request instead of
  * holding this one open, so it survives a 60s serverless function cap.
  */
-export async function startSupplierExplore(url: string): Promise<Supplier> {
+export async function startSupplierExplore(input: string): Promise<Supplier> {
+  // Reject dead domains and non-Shopify storefronts here rather than paying
+  // for an explore that can only end in `worker_error`. Throwing keeps the
+  // supplier out of the table entirely, so the form shows the reason instead
+  // of leaving a permanently-failed row behind.
+  const preflight = await preflightSupplier(input);
+  if (!preflight.ok) throw new Error(preflight.message);
+
+  // Explore and store the redirect-resolved URL, not what was typed, so
+  // "detourcoffee.com" and "www.detourcoffee.com" collapse onto one row via
+  // the unique constraint instead of onboarding as two merchants. We follow
+  // the site's own redirect rather than stripping "www." by hand, because
+  // plenty of hosts (a1cashandcarry.com among them) serve both spellings
+  // independently and neither one is wrong.
+  const url = canonicalizeSupplierUrl(preflight.canonicalUrl);
+
   const initial = await startExplore(url, EXPLORE_GOAL);
 
   if (initial.status === "explored") {

@@ -47,11 +47,11 @@ export default async function PricePage({
 
   if (!request) {
     return (
-      <main className="mx-auto w-full max-w-4xl space-y-6 px-6 py-16">
+      <main className="mx-auto w-full max-w-4xl space-y-6 px-5 py-10 sm:px-6 sm:py-16">
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-espresso-faint">
           Step 3
         </p>
-        <h1 className="font-display text-4xl font-semibold tracking-tight text-espresso sm:text-5xl">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-espresso sm:text-4xl md:text-5xl">
           Price a request
         </h1>
         <p className="text-espresso-soft">No parsed request exists yet.</p>
@@ -110,12 +110,12 @@ export default async function PricePage({
   });
 
   return (
-    <main className="mx-auto w-full max-w-6xl space-y-14 px-6 py-16">
+    <main className="mx-auto w-full max-w-6xl space-y-10 px-5 py-10 sm:space-y-14 sm:px-6 sm:py-16">
       <section>
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-espresso-faint">
           Step 3
         </p>
-        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-espresso sm:text-5xl">
+        <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-espresso sm:text-4xl md:text-5xl">
           Price request #{request.id}
         </h1>
         <p className="mt-4 max-w-2xl text-espresso-soft">
@@ -125,7 +125,7 @@ export default async function PricePage({
       </section>
       <form
         method="get"
-        className="grid items-end gap-6 rounded-2xl border border-line bg-cream p-8 sm:grid-cols-[1fr_1fr_auto]"
+        className="grid items-end gap-6 rounded-2xl border border-line bg-cream p-6 sm:p-8 sm:grid-cols-[1fr_1fr_auto]"
       >
         <input type="hidden" name="requestId" value={request.id} />
         <input type="hidden" name="addressModeSet" value="1" />

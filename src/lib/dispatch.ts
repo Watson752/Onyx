@@ -268,6 +268,17 @@ const LIVE_ORDER_STATUSES = new Set([
   "processing",
   "approval_required",
 ]);
+const TERMINAL_ORDER_STATUSES = new Set([
+  "succeeded",
+  "merchant_error",
+  "worker_error",
+  "price_changed",
+  "out_of_stock",
+  "payment_unconfirmed",
+  "payment_gate_hit",
+  "timeout",
+  "explored",
+]);
 
 async function refreshOrder(approval: Approval) {
   if (!approval.agnicOrderId) return approval;
@@ -310,15 +321,18 @@ async function refreshOrder(approval: Approval) {
         : approval.evidenceUrl),
   };
 
-  if (hasRetryability && body.retryable === null) {
+  if (
+    LIVE_ORDER_STATUSES.has(agnicStatus) ||
+    !TERMINAL_ORDER_STATUSES.has(agnicStatus) ||
+    retryAction === "poll"
+  ) {
     await prisma.approval.update({
       where: { id: approval.id },
       data: {
         ...common,
-        status: "uncertain",
-        decision: "stopped without retry",
-        decisionReason:
-          "Agnic reported retryable:null: money may have moved. Do not retry or auto-refund; check the card statement.",
+        status: "processing",
+        decision: "polling",
+        decisionReason: `Agnic status is ${agnicStatus}; the order is not terminal.`,
       },
     });
   } else if (agnicStatus === "succeeded") {
@@ -338,14 +352,25 @@ async function refreshOrder(approval: Approval) {
     } catch (error) {
       console.warn("[Onyx evidence fetch failed]", error);
     }
-  } else if (LIVE_ORDER_STATUSES.has(agnicStatus) || retryAction === "poll") {
+  } else if (!hasRetryability) {
     await prisma.approval.update({
       where: { id: approval.id },
       data: {
         ...common,
         status: "processing",
         decision: "polling",
-        decisionReason: `Agnic status is ${agnicStatus}; the prescribed action is ${retryAction ?? "poll"}.`,
+        decisionReason: `Agnic status is ${agnicStatus}, but retryable is absent; waiting for the complete terminal contract.`,
+      },
+    });
+  } else if (body.retryable === null) {
+    await prisma.approval.update({
+      where: { id: approval.id },
+      data: {
+        ...common,
+        status: "uncertain",
+        decision: "stopped without retry",
+        decisionReason:
+          "Agnic reported retryable:null: money may have moved. Do not retry or auto-refund; check the card statement.",
       },
     });
   } else {
