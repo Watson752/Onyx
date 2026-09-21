@@ -7,7 +7,7 @@ export default function AppLayout({ children }: LayoutProps<"/"> ) {
   return (
     <>
       <Nav />
-      {children}
+      <div className="pb-[env(safe-area-inset-bottom,0px)]">{children}</div>
     </>
   );
 }

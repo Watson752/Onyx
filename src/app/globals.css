@@ -53,6 +53,8 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: clip;
   }
 
   body {
@@ -61,6 +63,7 @@
     font-family: var(--font-sans);
     font-size: 0.9375rem;
     line-height: 1.7;
+    overflow-x: clip;
   }
 
   button,
@@ -68,6 +71,13 @@
   textarea,
   select {
     font: inherit;
+  }
+
+  /* iOS zooms focused fields below 16px; keep controls at 1rem. */
+  input,
+  textarea,
+  select {
+    font-size: 1rem;
   }
 
   ::selection {
@@ -89,6 +99,94 @@
   td,
   th {
     font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Wide tables become stacked cards/rows below Tailwind's `md` breakpoint. */
+@layer components {
+  @media (max-width: 767px) {
+    .stack-table thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .stack-table,
+    .stack-table tbody,
+    .stack-table tfoot,
+    .stack-table tr,
+    .stack-table th,
+    .stack-table td {
+      display: block;
+      width: 100%;
+    }
+
+    .stack-table td {
+      padding: 0.35rem 0;
+    }
+
+    .stack-table td[data-label] {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .stack-table td[data-label]::before {
+      content: attr(data-label);
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--color-espresso-faint);
+    }
+
+    .stack-table td[data-primary] {
+      padding-top: 0;
+      padding-bottom: 0.65rem;
+    }
+
+    .stack-table:not(.stack-table-cards) tbody tr {
+      padding-block: 0.7rem;
+    }
+
+    .stack-table tfoot tr {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      width: 100%;
+    }
+
+    .stack-table tfoot td {
+      width: auto;
+      padding: 0.2rem 0;
+    }
+
+    .stack-table tfoot td:first-child {
+      flex: 1;
+      text-align: left;
+    }
+
+    .stack-table-cards tbody {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .stack-table-cards tbody tr {
+      background: var(--color-cream);
+      border: 1px solid var(--color-line);
+      border-radius: 1rem;
+      padding: 1rem 1.15rem;
+    }
   }
 }
 

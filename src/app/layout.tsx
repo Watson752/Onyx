@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { THEME_STORAGE_KEY } from "@/lib/theme";
 import "./globals.css";
@@ -25,6 +25,12 @@ const themeScript = `try{var t=localStorage.getItem(${JSON.stringify(
 export const metadata: Metadata = {
   title: "Onyx",
   description: "Cafe supply sourcing spike",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -57,7 +57,7 @@ export default async function PricePage({
         <p className="text-espresso-soft">No parsed request exists yet.</p>
         <Link
           href="/request"
-          className="inline-block rounded-full bg-terracotta px-6 py-3 text-sm font-medium text-bone hover:bg-terracotta-deep"
+          className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-terracotta px-6 py-3 text-sm font-medium text-bone hover:bg-terracotta-deep sm:w-auto"
         >
           Create a request
         </Link>
@@ -70,8 +70,8 @@ export default async function PricePage({
     parsed = parsedRequestSchema.parse(JSON.parse(request.parsedJson));
   } catch {
     return (
-      <main className="mx-auto w-full max-w-4xl px-6 py-16">
-        <h1 className="font-display text-4xl font-semibold tracking-tight text-espresso">
+      <main className="mx-auto w-full max-w-4xl px-5 py-10 sm:px-6 sm:py-16">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-espresso sm:text-4xl">
           Invalid stored request
         </h1>
         <p className="mt-4 text-espresso-soft">
@@ -163,7 +163,7 @@ export default async function PricePage({
         </label>
         <button
           type="submit"
-          className="rounded-full border border-espresso px-7 py-3 text-sm font-medium text-espresso hover:bg-espresso hover:text-bone"
+          className="min-h-11 w-full rounded-full border border-espresso px-7 py-3 text-sm font-medium text-espresso hover:bg-espresso hover:text-bone sm:w-auto"
         >
           Requote
         </button>

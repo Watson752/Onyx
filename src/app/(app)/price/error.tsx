@@ -9,7 +9,7 @@ export default function PriceError({
 }) {
   return (
     <main className="mx-auto w-full max-w-4xl space-y-6 px-5 py-10 sm:px-6 sm:py-16">
-      <h1 className="font-display text-4xl font-semibold tracking-tight text-espresso">
+      <h1 className="font-display text-3xl font-semibold tracking-tight text-espresso sm:text-4xl">
         Pricing failed
       </h1>
       <p className="rounded-2xl border border-brick/30 bg-brick-soft p-6 text-brick">
@@ -18,7 +18,7 @@ export default function PriceError({
       <button
         type="button"
         onClick={reset}
-        className="rounded-full bg-terracotta px-7 py-3 text-sm font-medium text-bone hover:bg-terracotta-deep"
+        className="min-h-11 w-full rounded-full bg-terracotta px-7 py-3 text-sm font-medium text-bone hover:bg-terracotta-deep sm:w-auto"
       >
         Retry
       </button>

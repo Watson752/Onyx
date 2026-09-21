@@ -15,7 +15,7 @@ export function SubmitButton({
     <button
       type="submit"
       disabled={isPending}
-      className="rounded-full bg-terracotta px-7 py-3 text-sm font-medium tracking-wide text-bone hover:bg-terracotta-deep disabled:cursor-wait disabled:opacity-60"
+      className="w-full min-h-11 rounded-full bg-terracotta px-7 py-3 text-sm font-medium tracking-wide text-bone hover:bg-terracotta-deep disabled:cursor-wait disabled:opacity-60 sm:w-auto"
     >
       {isPending ? (
         <span className="inline-flex items-center gap-2">

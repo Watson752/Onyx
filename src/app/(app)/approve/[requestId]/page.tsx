@@ -71,7 +71,7 @@ export default async function ApprovePage({
           {error instanceof Error ? error.message : String(error)}
         </p>
         <Link
-          className="inline-block rounded-full border border-espresso px-7 py-3 text-sm font-medium text-espresso hover:bg-espresso hover:text-bone"
+          className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-espresso px-7 py-3 text-sm font-medium text-espresso hover:bg-espresso hover:text-bone sm:w-auto"
           href={`/price?requestId=${request.id}`}
         >
           Return to pricing
@@ -109,9 +109,9 @@ export default async function ApprovePage({
             key={cart.merchantId}
             className="overflow-hidden rounded-2xl border border-line-strong bg-cream"
           >
-            <header className="flex flex-wrap items-start justify-between gap-4 border-b border-line bg-beige px-6 py-5 sm:px-8 sm:py-6">
-              <div>
-                <h2 className="font-display text-xl font-semibold tracking-tight text-espresso sm:text-2xl">
+            <header className="flex flex-wrap items-start justify-between gap-3 border-b border-line bg-beige px-4 py-4 sm:gap-4 sm:px-8 sm:py-6">
+              <div className="min-w-0">
+                <h2 className="font-display text-xl font-semibold tracking-tight break-words text-espresso sm:text-2xl">
                   {cart.supplierName}
                 </h2>
                 <p className="mt-1 font-mono text-xs break-all text-espresso-faint">
@@ -133,7 +133,7 @@ export default async function ApprovePage({
               {cart.displayItems.map((item) => (
                 <div
                   key={`${item.sku}-${item.query}`}
-                  className="grid gap-1 px-6 py-5 sm:grid-cols-[1fr_auto] sm:items-baseline sm:px-8 sm:py-6"
+                  className="grid gap-1 px-4 py-4 sm:grid-cols-[1fr_auto] sm:items-baseline sm:px-8 sm:py-6"
                 >
                   <div>
                     <p className="font-medium text-espresso">{item.title}</p>
@@ -148,7 +148,7 @@ export default async function ApprovePage({
               ))}
             </div>
 
-            <div className="grid gap-8 border-t border-line bg-bone px-6 py-6 sm:grid-cols-2 sm:px-8 sm:py-7">
+            <div className="grid gap-8 border-t border-line bg-bone px-4 py-6 sm:grid-cols-2 sm:px-8 sm:py-7">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint">
                   {cart.amountIsFinal ? "Delivered total" : "Checkout ceiling"}

@@ -72,13 +72,13 @@ function SupplierTableRow({ initial }: { initial: SupplierRow }) {
   const isError = row.explorePhase === "error";
 
   return (
-    <tr className="border-t border-line align-top">
-      <td className="px-5 py-4 sm:px-6 sm:py-5">
+    <tr className="md:border-t md:border-line md:align-top">
+      <td className="md:px-6 md:py-5" data-primary="">
         <a
           href={row.url}
           target="_blank"
           rel="noreferrer"
-          className="font-medium text-espresso underline decoration-line-strong underline-offset-4 hover:text-terracotta"
+          className="font-medium break-words text-espresso underline decoration-line-strong underline-offset-4 hover:text-terracotta"
         >
           {row.name}
         </a>
@@ -86,14 +86,14 @@ function SupplierTableRow({ initial }: { initial: SupplierRow }) {
           {row.agnicMerchantId ?? "—"}
         </div>
       </td>
-      <td className="px-5 py-4 sm:px-6 sm:py-5">
+      <td className="md:px-6 md:py-5" data-label="Status">
         {isPolling ? (
           <span className="inline-flex items-center gap-2 rounded-full bg-amberwarm-soft px-3 py-1 text-xs font-medium text-amberwarm-deep">
             <span className="size-3 animate-spin rounded-full border-2 border-amberwarm border-t-transparent" />
             {pollCapReached ? "still exploring" : "exploring…"}
           </span>
         ) : isError ? (
-          <span className="inline-flex rounded-full bg-brick-soft px-3 py-1 text-xs font-medium text-brick">
+          <span className="inline-flex max-w-[70%] rounded-xl bg-brick-soft px-3 py-1.5 text-left text-xs font-medium break-words text-brick">
             {row.exploreError ?? row.status}
           </span>
         ) : (
@@ -102,11 +102,16 @@ function SupplierTableRow({ initial }: { initial: SupplierRow }) {
           </span>
         )}
       </td>
-      <td className="px-5 py-4 text-espresso-soft sm:px-6 sm:py-5">{row.rail ?? "unknown"}</td>
-      <td className="px-5 py-4 text-espresso-soft sm:px-6 sm:py-5">
+      <td className="text-espresso-soft md:px-6 md:py-5" data-label="Rail">
+        {row.rail ?? "unknown"}
+      </td>
+      <td className="text-espresso-soft md:px-6 md:py-5" data-label="Currency">
         {row.currency ?? "unknown"}
       </td>
-      <td className="px-5 py-4 text-right tabular-nums text-espresso-soft sm:px-6 sm:py-5">
+      <td
+        className="tabular-nums text-espresso-soft md:px-6 md:py-5 md:text-right"
+        data-label="Catalog"
+      >
         {row.catalogItemCount} items
       </td>
     </tr>
@@ -115,8 +120,8 @@ function SupplierTableRow({ initial }: { initial: SupplierRow }) {
 
 export function SupplierTable({ suppliers }: { suppliers: SupplierRow[] }) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-line bg-cream">
-      <table className="w-full min-w-[40rem] text-left text-sm">
+    <div className="md:overflow-x-auto md:rounded-2xl md:border md:border-line md:bg-cream">
+      <table className="stack-table stack-table-cards w-full text-left text-sm md:min-w-[40rem]">
         <thead className="bg-beige">
           <tr className="text-[11px] uppercase tracking-[0.16em] text-espresso-soft">
             <th className="px-5 py-4 font-semibold sm:px-6">Supplier</th>

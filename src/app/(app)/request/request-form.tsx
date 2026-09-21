@@ -54,13 +54,13 @@ export function RequestForm() {
 
       {state.parsed && state.requestId ? (
         <section className="space-y-6 rounded-2xl border border-line bg-cream p-6 sm:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <h2 className="font-display text-2xl font-semibold tracking-tight text-espresso">
               Parsed request
             </h2>
             <Link
               href={`/price?requestId=${state.requestId}`}
-              className="rounded-full bg-terracotta px-6 py-3 text-sm font-medium text-bone hover:bg-terracotta-deep"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-terracotta px-6 py-3 text-center text-sm font-medium text-bone hover:bg-terracotta-deep sm:w-auto"
             >
               Price this request
             </Link>
@@ -100,7 +100,7 @@ export function RequestForm() {
             <summary className="cursor-pointer text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint hover:text-terracotta">
               Strict JSON
             </summary>
-            <pre className="mt-4 overflow-auto rounded-xl bg-espresso p-5 text-xs leading-relaxed text-bone">
+            <pre className="mt-4 overflow-x-auto rounded-xl bg-espresso p-4 text-xs leading-relaxed break-all text-bone sm:p-5 sm:break-normal">
               {JSON.stringify(state.parsed, null, 2)}
             </pre>
           </details>

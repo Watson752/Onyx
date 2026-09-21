@@ -52,7 +52,7 @@ export function PricingView({
           </p>
         ) : (
           <>
-            <p className="mt-8 font-display text-4xl font-semibold tabular-nums tracking-tight text-espresso sm:text-6xl md:text-7xl">
+            <p className="mt-8 font-display text-3xl font-semibold tabular-nums tracking-tight text-espresso sm:text-6xl md:text-7xl">
               <Money
                 amountMinor={result.selectedTotalMinor}
                 currency={parsed.currency}
@@ -78,7 +78,7 @@ export function PricingView({
             ) : null}
             <Link
               href={`/approve/${requestId}?${approvalParams.toString()}`}
-              className="mt-9 block w-full rounded-full bg-terracotta px-8 py-4 text-center text-sm font-medium tracking-wide text-bone hover:bg-terracotta-deep sm:inline-block sm:w-auto"
+              className="mt-9 block w-full min-h-11 rounded-full bg-terracotta px-8 py-4 text-center text-sm font-medium tracking-wide text-bone hover:bg-terracotta-deep sm:inline-block sm:w-auto"
             >
               Review exact approval
             </Link>
@@ -166,9 +166,9 @@ export function PricingView({
                         : "border-line"
                 }`}
               >
-                <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-beige px-6 py-5 sm:px-8 sm:py-6">
-                  <div>
-                    <h3 className="font-display text-xl font-semibold tracking-tight text-espresso">
+                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-beige px-4 py-4 sm:gap-4 sm:px-8 sm:py-6">
+                  <div className="min-w-0">
+                    <h3 className="font-display text-lg font-semibold tracking-tight break-words text-espresso sm:text-xl">
                       {supplierQuote.merchantName}
                     </h3>
                     <p className="mt-1 font-mono text-xs break-all text-espresso-faint">
@@ -203,7 +203,7 @@ export function PricingView({
                   </div>
                 </header>
 
-                <div className="space-y-4 border-b border-line px-6 py-5 sm:px-8 sm:py-6">
+                <div className="space-y-4 border-b border-line px-4 py-5 sm:px-8 sm:py-6">
                   <p className="text-sm text-espresso-soft">
                     <strong className="font-medium text-espresso">
                       Address used:
@@ -250,8 +250,8 @@ export function PricingView({
                   ) : null}
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[34rem] text-left text-sm">
+                <div className="px-4 md:overflow-x-auto md:px-0">
+                  <table className="stack-table w-full text-left text-sm md:min-w-[34rem]">
                     <thead>
                       <tr className="border-b border-line text-[11px] uppercase tracking-[0.16em] text-espresso-faint">
                         <th className="px-5 py-4 font-semibold sm:px-8">Requested</th>
@@ -272,16 +272,28 @@ export function PricingView({
                           key={`${item.requestItemIndex}-${item.sku}`}
                           className="border-b border-line"
                         >
-                          <td className="px-5 py-4 text-espresso-soft sm:px-8 sm:py-5">
-                            {item.query}
+                          <td
+                            className="text-espresso-soft md:px-8 md:py-5"
+                            data-label="Requested"
+                          >
+                            <span className="break-words">{item.query}</span>
                           </td>
-                          <td className="px-5 py-4 text-espresso sm:px-8 sm:py-5">
-                            {item.title}
+                          <td
+                            className="text-espresso md:px-8 md:py-5"
+                            data-label="Matched item"
+                          >
+                            <span className="break-words">{item.title}</span>
                           </td>
-                          <td className="px-5 py-4 text-right tabular-nums text-espresso-soft sm:px-8 sm:py-5">
+                          <td
+                            className="tabular-nums text-espresso-soft md:px-8 md:py-5 md:text-right"
+                            data-label="Qty"
+                          >
                             {item.quantity}
                           </td>
-                          <td className="px-5 py-4 text-right tabular-nums text-espresso sm:px-8 sm:py-5">
+                          <td
+                            className="tabular-nums text-espresso md:px-8 md:py-5 md:text-right"
+                            data-label="Browse price"
+                          >
                             <Money
                               amountMinor={item.browsePriceMinor}
                               currency={supplierQuote.currency}
@@ -294,11 +306,11 @@ export function PricingView({
                       <tr>
                         <td
                           colSpan={3}
-                          className="px-5 pt-5 pb-2 text-right text-espresso-soft sm:px-8"
+                          className="pt-5 pb-2 text-espresso-soft md:px-8 md:text-right"
                         >
                           Subtotal
                         </td>
-                        <td className="px-5 pt-5 pb-2 text-right tabular-nums sm:px-8">
+                        <td className="pt-5 pb-2 tabular-nums md:px-8 md:text-right">
                           <Money
                             amountMinor={supplierQuote.subtotalMinor}
                             currency={supplierQuote.currency}
@@ -308,11 +320,11 @@ export function PricingView({
                       <tr>
                         <td
                           colSpan={3}
-                          className="px-5 py-2 text-right text-espresso-soft sm:px-8"
+                          className="py-2 text-espresso-soft md:px-8 md:text-right"
                         >
                           Shipping
                         </td>
-                        <td className="px-5 py-2 text-right tabular-nums sm:px-8">
+                        <td className="py-2 tabular-nums md:px-8 md:text-right">
                           <Money
                             amountMinor={supplierQuote.shippingMinor}
                             currency={supplierQuote.currency}
@@ -322,13 +334,13 @@ export function PricingView({
                       <tr>
                         <td
                           colSpan={3}
-                          className="px-5 pt-2 pb-6 text-right text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint sm:px-8"
+                          className="pt-2 pb-6 text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint md:px-8 md:text-right"
                         >
                           {supplierQuote.amountIsFinal
                             ? "Tax-inclusive total"
                             : "Charge ceiling"}
                         </td>
-                        <td className="px-5 pt-2 pb-6 text-right font-display text-2xl font-semibold tabular-nums sm:px-8">
+                        <td className="pt-2 pb-6 font-display text-2xl font-semibold tabular-nums md:px-8 md:text-right">
                           <Money
                             amountMinor={supplierQuote.totalMinor}
                             currency={supplierQuote.currency}
@@ -338,7 +350,7 @@ export function PricingView({
                     </tfoot>
                   </table>
                 </div>
-                <div className="border-t border-line px-6 py-5 sm:px-8 sm:py-6">
+                <div className="border-t border-line px-4 py-5 sm:px-8 sm:py-6">
                   <h4 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-faint">
                     Available fulfilment options
                   </h4>
@@ -362,7 +374,7 @@ export function PricingView({
                           </span>
                           {option.id ===
                           supplierQuote.quote?.selected_option_id ? (
-                            <span className="ml-3 inline-flex items-center rounded-full bg-espresso px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-bone">
+                            <span className="mt-2 inline-flex items-center rounded-full bg-espresso px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-bone sm:ml-3 sm:mt-0">
                               Selected
                             </span>
                           ) : null}
@@ -377,7 +389,7 @@ export function PricingView({
                   )}
                 </div>
                 {supplierQuote.capBreach ? (
-                  <p className="border-t border-line bg-amberwarm-soft px-6 py-5 text-sm text-amberwarm-deep sm:px-8">
+                  <p className="border-t border-line bg-amberwarm-soft px-4 py-5 text-sm text-amberwarm-deep sm:px-8">
                     {supplierQuote.merchantName} skipped:{" "}
                     {supplierQuote.capBreach.kind}{" "}
                     {formatMoney(
@@ -392,7 +404,7 @@ export function PricingView({
                     limit; nothing charged.
                   </p>
                 ) : (
-                  <p className="border-t border-line px-6 py-5 text-sm text-espresso-soft sm:px-8">
+                  <p className="border-t border-line px-4 py-5 text-sm text-espresso-soft sm:px-8">
                     {supplierQuote.note}
                   </p>
                 )}
@@ -403,7 +415,7 @@ export function PricingView({
         {result.quotes.length > 0 ? (
           <button
             type="submit"
-            className="rounded-full border border-espresso px-7 py-3 text-sm font-medium text-espresso hover:bg-espresso hover:text-bone"
+            className="min-h-11 w-full rounded-full border border-espresso px-7 py-3 text-sm font-medium text-espresso hover:bg-espresso hover:text-bone sm:w-auto"
           >
             Requote address modes
           </button>

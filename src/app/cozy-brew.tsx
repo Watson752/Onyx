@@ -87,7 +87,9 @@ function buildScene(
   reducedMotion: boolean,
 ): Scene {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio || 1, window.innerWidth < 640 ? 1.5 : 2),
+  );
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   stage.appendChild(renderer.domElement);
@@ -443,6 +445,7 @@ function buildScene(
   let targetYaw = 0;
   let targetPitch = 0;
   let elapsed = 0;
+  let portrait = false;
 
   const diveFromPos = new THREE.Vector3();
   const diveFromLook = new THREE.Vector3();
@@ -453,11 +456,13 @@ function buildScene(
   camera.lookAt(CAM_LOOK);
 
   const placeOrbitCamera = () => {
+    const dist = portrait ? 8.6 : CAM_DIST;
+    const height = portrait ? 4.5 : CAM_BASE_HEIGHT;
     const yaw = autoAngle + userYaw;
-    const pitch = 0.12 + userPitch;
-    camera.position.x = Math.sin(yaw) * CAM_DIST * Math.cos(pitch);
-    camera.position.z = Math.cos(yaw) * CAM_DIST * Math.cos(pitch);
-    camera.position.y = CAM_BASE_HEIGHT + Math.sin(pitch) * CAM_DIST * 0.6;
+    const pitch = (portrait ? 0.34 : 0.12) + userPitch;
+    camera.position.x = Math.sin(yaw) * dist * Math.cos(pitch);
+    camera.position.z = Math.cos(yaw) * dist * Math.cos(pitch);
+    camera.position.y = height + Math.sin(pitch) * dist * 0.6;
     camera.lookAt(CAM_LOOK);
   };
 
@@ -465,6 +470,8 @@ function buildScene(
     setSize(w, h) {
       renderer.setSize(w, h);
       camera.aspect = w / h;
+      portrait = h > w;
+      camera.fov = portrait ? 56 : 38;
       camera.updateProjectionMatrix();
     },
 

@@ -219,7 +219,7 @@ function DispatchCard({ initial }: { initial: DispatchApproval }) {
           )}
           <Link
             href={`/approve/${approval.requestId}`}
-            className="mt-4 inline-block rounded-full border border-espresso px-6 py-2.5 text-sm font-medium text-espresso hover:bg-espresso hover:text-bone"
+            className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-full border border-espresso px-6 py-2.5 text-sm font-medium text-espresso hover:bg-espresso hover:text-bone sm:w-auto"
           >
             Re-quote and request a new approval
           </Link>
@@ -255,7 +255,7 @@ function DispatchCard({ initial }: { initial: DispatchApproval }) {
                   resumeAttempted.current = true;
                   void dispatch("resume");
                 }}
-                className="mt-4 rounded-full bg-terracotta px-6 py-2.5 text-sm font-medium text-bone hover:bg-terracotta-deep"
+                className="mt-4 min-h-11 w-full rounded-full bg-terracotta px-6 py-2.5 text-sm font-medium text-bone hover:bg-terracotta-deep sm:w-auto"
               >
                 I refreshed CVV — resend once
               </button>
@@ -294,7 +294,7 @@ function DispatchCard({ initial }: { initial: DispatchApproval }) {
                 setMessage(error instanceof Error ? error.message : String(error));
               })
             }
-            className="mt-3 rounded-full border border-line-strong bg-cream px-5 py-2 text-espresso hover:border-espresso"
+            className="mt-3 min-h-11 w-full rounded-full border border-line-strong bg-cream px-5 py-2 text-espresso hover:border-espresso sm:w-auto"
           >
             Check status once
           </button>
